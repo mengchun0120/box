@@ -1,6 +1,5 @@
 package com.mcdane.box
 
-import android.content.Context
 import android.content.res.Resources
 import android.util.Log
 
@@ -21,23 +20,16 @@ class SimpleProgram private constructor(): ShaderProgram() {
     private var alphaLoc: Int = -1
 
     companion object {
-        fun create(res: Resources): SimpleProgram? {
-            val program = SimpleProgram()
-            return if (program.init(res)) {
-                Log.i(TAG, "SimpleProgram created successfully")
-                program
-            } else {
-                Log.i(TAG, "Failed to create SimpleProgram")
-                program.close()
-                null
-            }
-        }
+        fun create(res: Resources): SimpleProgram? =
+            SimpleProgram().takeIf{ it.init(res) }
     }
 
     private fun init(res: Resources): Boolean =
-        if (init(res, R.raw.simple_vertex_shader, R.raw.simple_frag_shader)) {
-            initVarLoc()
+        if (init(res, R.raw.simple_vertex_shader, R.raw.simple_frag_shader) && initVarLoc()) {
+            Log.i(TAG, "SimpleProgram created successfully")
+            true
         } else {
+            Log.e(TAG, "Failed to create SimpleProgram")
             close()
             false
         }
