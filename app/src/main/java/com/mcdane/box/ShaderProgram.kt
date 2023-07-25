@@ -33,7 +33,7 @@ open class ShaderProgram {
 
     fun use() = GL.glUseProgram(program)
 
-    fun getUniformLocation(name: String): Int? =
+    protected fun getUniformLocation(name: String): Int? =
         GL.glGetUniformLocation(program, name).let {
             if (it >= 0) {
                 it
@@ -43,7 +43,7 @@ open class ShaderProgram {
             }
         }
 
-    fun getAttributeLocation(name: String): Int? =
+    protected fun getAttributeLocation(name: String): Int? =
         GL.glGetAttribLocation(program, name).let {
             if (it >= 0) {
                 it

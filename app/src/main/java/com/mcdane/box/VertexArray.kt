@@ -42,19 +42,12 @@ class VertexArray private constructor() {
             bufferObjBuf.put(0, value)
         }
 
-    val valid: Boolean
-        get() = arrayObj != 0 && bufferObj != 0
+    val numBlocks: Int
+        get() = blocks.size
 
     companion object {
         fun create(buffers: List<BufferBlock>): VertexArray? =
-           VertexArray().let {
-                if (it.init(buffers)) {
-                    it
-                } else {
-                    it.close()
-                    null
-                }
-            }
+           VertexArray().takeIf{ it.init(buffers) }
     }
 
     fun close() {
@@ -68,11 +61,20 @@ class VertexArray private constructor() {
         }
     }
 
+    fun offset(index: Int) = blocks[index].offset
+
+    fun numVertices(index: Int) = blocks[index].numVertices
+
+    fun vertexSize(index: Int) = blocks[index].vertexSize
+
+    fun stride(index: Int) = blocks[index].stride
+
     private fun init(buffers: List<BufferBlock>): Boolean =
         if (initArrayObj() && initBufferObj()) {
             initBlocks(buffers)
             true
         } else {
+            close()
             false
         }
 
