@@ -6,11 +6,21 @@ import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
 class BufferBlock(
-    val buf: ByteBuffer,
+    val data: FloatArray,
     val numVertices: Int,
     val vertexSize: Int,
     val stride: Int
-)
+) {
+    constructor(_data: FloatArray, floatsPerVertex: Int, _stride: Int = 0):
+        this(
+            _data,
+            _data.size / floatsPerVertex,
+            floatsPerVertex * Float.SIZE_BYTES,
+            _stride
+        ) {
+    }
+
+}
 
 class BufferDescriptor(
     val numVertices: Int,
@@ -109,6 +119,6 @@ class VertexArray private constructor() {
 
     private fun storeBlock(blk: BufferBlock, offset: Int): BufferDescriptor =
         BufferDescriptor(blk, offset).also {
-            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, offset, it.totalSize, blk.buf)
+            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, offset, it.totalSize, toFloatBuffer(blk.data))
         }
 }
