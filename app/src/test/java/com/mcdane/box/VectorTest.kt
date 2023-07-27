@@ -9,9 +9,14 @@ import org.junit.Assert.*
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class VectorTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun equals_works() {
+        val t1 = Vector(1.0f, 2.0f)
+        val t2 = Vector(2.0f, 3.0f)
+        val t3 = Vector(1.0f, 2.0f)
+
+        assertTrue(t1 == t3)
+        assertTrue(t1 != t2)
     }
 }

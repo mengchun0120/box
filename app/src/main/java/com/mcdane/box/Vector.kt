@@ -3,10 +3,12 @@ package com.mcdane.box
 import kotlin.math.sqrt
 import kotlin.math.abs
 
-class Vector private constructor(_dim: Int) {
-    val data = FloatArray(_dim)
+class Vector(dim: Int) {
+    val data = FloatArray(dim)
+
     val dim: Int
         get() = data.size
+
     val norm: Float
         get() {
             var sum = 0.0f
@@ -16,20 +18,18 @@ class Vector private constructor(_dim: Int) {
             return sqrt(sum)
         }
 
-    companion object {
-        fun create(vararg a: Float): Vector =
-            Vector(a.size).also {
-                for ((idx, e) in a.withIndex()) {
-                    it.data[idx] = e
-                }
-            }
+    constructor(vararg a: Float): this(a.size) {
+        populate(a.withIndex())
+    }
 
-        fun create(a: Collection<Float>): Vector =
-            Vector(a.size).also {
-                for ((idx, e) in a.withIndex()) {
-                    it.data[idx] = e
-                }
-            }
+    constructor(a: Collection<Float>): this(a.size) {
+        populate(a.withIndex())
+    }
+
+    fun <T: Iterable<IndexedValue<Float>>> populate(i: T) {
+        for ((idx, e) in i.withIndex()) {
+            data[idx] = e.value
+        }
     }
 
     operator fun get(idx: Int): Float = data[idx]
@@ -135,6 +135,18 @@ class Vector private constructor(_dim: Int) {
                 it[idx] = -it[idx]
             }
         }
+
+    override fun equals(other: Any?): Boolean {
+        val o: Vector = other as? Vector ?: return false
+
+        if (dim != o.dim) return false
+
+        for (idx in 0 until dim) {
+            if (this[idx] != o[idx]) return false
+        }
+
+        return true
+    }
 
     fun negate(): Vector {
         for (idx in 0 until dim) {
