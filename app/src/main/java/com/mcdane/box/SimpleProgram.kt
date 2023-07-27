@@ -61,12 +61,12 @@ class SimpleProgram private constructor(): ShaderProgram() {
     fun setPositionTexPos(va: VertexArray) {
         GL.glBindVertexArray(va.arrayObj)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, va.bufferObj)
-        GL.glVertexAttribPointer(positionLoc, FLOATS_PER_POS,  GL.GL_FLOAT, false,
+        GL.glVertexAttribPointer(positionLoc, FLOATS_PER_POS_2D,  GL.GL_FLOAT, false,
                                  va.stride(0), va.offset(0))
         GL.glEnableVertexAttribArray(positionLoc)
 
         if (va.numBlocks > 1) {
-            GL.glVertexAttribPointer(texPosLoc, FLOATS_PER_POS,  GL.GL_FLOAT, false,
+            GL.glVertexAttribPointer(texPosLoc, FLOATS_PER_POS_2D,  GL.GL_FLOAT, false,
                 va.stride(1), va.offset(1))
             GL.glEnableVertexAttribArray(texPosLoc)
         }

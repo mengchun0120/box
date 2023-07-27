@@ -11,9 +11,7 @@ class Polygon private constructor(val va: VertexArray) {
         ): Polygon? =
             VertexArray.create(
                 prepareBlocks(posData, texPosData, floatsPerPos, floatsPerTexPos)
-            )?.run {
-                Polygon(this)
-            }
+            )?.run { Polygon(this) }
 
         private fun prepareBlocks(
             posData: FloatArray,
