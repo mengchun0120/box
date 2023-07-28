@@ -3,11 +3,10 @@ package com.mcdane.box
 import kotlin.math.sqrt
 import kotlin.math.abs
 
-class Vector(dim: Int) {
-    val data = FloatArray(dim)
+class Vector(_dim: Int) {
+    val data = FloatArray(_dim)
 
-    val dim: Int
-        get() = data.size
+    val dim: Int = _dim
 
     val norm: Float
         get() {
@@ -38,6 +37,16 @@ class Vector(dim: Int) {
         data[idx] = v
     }
 
+    operator fun component1() = data[0]
+
+    operator fun component2() = data[1]
+
+    operator fun component3() = data[2]
+
+    operator fun component4() = data[3]
+
+    operator fun component5() = data[4]
+
     operator fun plus(o: Vector): Vector {
         if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
 
@@ -61,7 +70,7 @@ class Vector(dim: Int) {
     operator fun times(f: Float): Vector =
         Vector(dim).also {
             for (idx in 0 until dim) {
-                it[idx] *= f
+                it[idx] = this[idx] * f
             }
         }
 
@@ -87,54 +96,25 @@ class Vector(dim: Int) {
         }
     }
 
-    operator fun plusAssign(o: Vector) {
-        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        for (idx in 0 until dim) {
-            this[idx] += o[idx]
-        }
-    }
-
-    operator fun minusAssign(o: Vector) {
-        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        for (idx in 0 until dim) {
-            this[idx] -= o[idx]
-        }
-    }
-
-    operator fun timesAssign(f: Float) {
-        for (idx in 0 until dim) {
-            this[idx] *= f
-        }
-    }
-
-    operator fun timesAssign(o: Vector) {
-        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        for (idx in 0 until dim) {
-            this[idx] *= o[idx]
-        }
-    }
-
-    operator fun divAssign(f: Float) {
-        this *= (1.0f / f)
-    }
-
-    operator fun divAssign(o: Vector) {
-        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        for (idx in 0 until dim) {
-            this[idx] /= o[idx]
-        }
-    }
-
     operator fun unaryMinus(): Vector =
         Vector(dim).also {
             for (idx in 0 until dim) {
-                it[idx] = -it[idx]
+                it[idx] = -this[idx]
             }
         }
+
+    fun assign(o: Vector): Vector {
+        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
+
+        return this.also {
+            for (idx in 0 until dim) {
+                this[idx] = o[idx]
+            }
+        }
+    }
+
+    fun copy(): Vector =
+        Vector(dim).also { data.copyInto(it.data) }
 
     override fun equals(other: Any?): Boolean {
         val o: Vector = other as? Vector ?: return false
@@ -148,6 +128,16 @@ class Vector(dim: Int) {
         return true
     }
 
+    fun fuzzyEqual(o: Vector, threshold: Float = 1e-5f): Boolean {
+        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
+
+        for ((idx, e) in data.withIndex()) {
+            if (!fuzzyEqual(e, o[idx], threshold)) return false
+        }
+
+        return true
+    }
+
     fun negate(): Vector {
         for (idx in 0 until dim) {
             this[idx] = -this[idx]
@@ -156,14 +146,18 @@ class Vector(dim: Int) {
     }
 
     fun normalize(): Vector {
-        this /= norm
-        return this
+        val n = norm
+        return this.also {
+            for (idx in 0 until dim) {
+                data[idx] /= n
+            }
+        }
     }
 
     fun abs(): Vector =
         Vector(dim).also {
             for (idx in 0 until dim) {
-                it[idx] = abs(it[idx])
+                it[idx] = abs(this[idx])
             }
         }
 
@@ -179,16 +173,6 @@ class Vector(dim: Int) {
         }
 
         return sqrt(sum)
-    }
-
-    fun fuzzyEqual(o: Vector, threshold: Float = 1e-6f): Boolean {
-        if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        data.forEachIndexed {
-            idx, e -> if (!fuzzyEqual(e, o[idx], threshold)) return false
-        }
-
-        return true
     }
 
     override fun toString(): String = data.joinToString(prefix="[", postfix="]")
