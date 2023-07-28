@@ -119,6 +119,6 @@ class VertexArray private constructor() {
 
     private fun storeBlock(blk: BufferBlock, offset: Int): BufferDescriptor =
         BufferDescriptor(blk, offset).also {
-            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, offset, it.totalSize, toFloatBuffer(blk.data))
+            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, offset, it.totalSize, blk.data.toFloatBuffer())
         }
 }

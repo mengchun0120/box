@@ -3,10 +3,8 @@ package com.mcdane.box
 import kotlin.math.sqrt
 import kotlin.math.abs
 
-class Vector(_dim: Int) {
-    val data = FloatArray(_dim)
-
-    val dim: Int = _dim
+open class Vector(val dim: Int) {
+    val data = FloatArray(dim)
 
     val norm: Float
         get() {
