@@ -32,15 +32,11 @@ fun compileShader(shader: Int, source: String):  Boolean {
 
 fun createShader(type: ShaderType, source: String): Int {
     val shader = GL.glCreateShader(type.toGLType())
-    if (shader == 0) {
-        Log.e(TAG, "Failed to create shader $type")
-        return 0
-    }
+    if (shader == 0) throw RuntimeException("glCreateShader failed")
 
     if (!compileShader(shader, source)) {
-        Log.e(TAG, "Failed to compile $type: ${shaderInfo(shader)}")
         GL.glDeleteShader(shader)
-        return 0
+        throw RuntimeException("Failed to compile $type: ${shaderInfo(shader)}")
     }
 
     Log.i(TAG, "Shader $type created successfully")
@@ -48,10 +44,8 @@ fun createShader(type: ShaderType, source: String): Int {
     return shader
 }
 
-fun createShader(type: ShaderType, res: Resources, resId: Int): Int {
-    val source = readText(res, resId) ?: return 0
-    return createShader(type, source)
-}
+fun createShader(type: ShaderType, res: Resources, resId: Int): Int =
+    createShader(type, readText(res, resId))
 
 fun isProgramLinkSuccessful(program: Int): Boolean {
     val status = IntBuffer.allocate(1)
@@ -95,15 +89,11 @@ fun destroyProgramAndShader(program: Int, vertexShader: Int, fragShader: Int) {
 
 fun createProgram(vertexShader: Int, fragShader: Int): Int {
     val program = GL.glCreateProgram()
-    if (program == 0) {
-        Log.e(TAG, "glCreateProgram failed")
-        return 0
-    }
+    if (program == 0) throw RuntimeException("glCreateProgram failed")
 
     if (!linkProgram(program, vertexShader, fragShader)) {
-        Log.e(TAG, "Failed to link program: ${programInfo(program)}")
         GL.glDeleteProgram(program)
-        return 0
+        throw RuntimeException("Failed to link program: ${programInfo(program)}")
     }
 
     return program

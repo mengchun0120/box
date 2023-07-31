@@ -4,24 +4,19 @@ import android.content.res.Resources
 import android.util.Log
 import android.opengl.GLES30 as GL
 
-open class ShaderProgram {
+open class ShaderProgram(
+    res: Resources,
+    vertexShaderResId: Int,
+    fragShaderResId: Int) {
+
     protected var program: Int = 0
     protected var vertexShader: Int = 0
     protected var fragShader: Int = 0
 
-    protected fun init(res: Resources, vertexShaderResId: Int, fragShaderResId: Int): Boolean {
+    init {
         vertexShader = createShader(ShaderType.VERTEX_SHADER, res, vertexShaderResId)
-        if (vertexShader == 0) {
-            return false
-        }
-
         fragShader = createShader(ShaderType.FRAG_SHADER, res, fragShaderResId)
-        if (fragShader == 0) {
-            return false
-        }
-
         program = createProgram(vertexShader, fragShader)
-        return true
     }
 
     open fun close() {
@@ -33,23 +28,22 @@ open class ShaderProgram {
 
     fun use() = GL.glUseProgram(program)
 
-    protected fun getUniformLocation(name: String): Int? =
+    protected fun getUniformLocation(name: String): Int =
         GL.glGetUniformLocation(program, name).let {
             if (it >= 0) {
                 it
             } else {
-                Log.e(TAG, "Failed to find uniform variable $name")
-                null
+                throw RuntimeException("Failed to find uniform variable $name")
+
             }
         }
 
-    protected fun getAttributeLocation(name: String): Int? =
+    protected fun getAttributeLocation(name: String): Int =
         GL.glGetAttribLocation(program, name).let {
             if (it >= 0) {
                 it
             } else {
-                Log.e(TAG, "Failed to find attribute $name")
-                null
+                throw RuntimeException("Failed to find attribute $name")
             }
         }
 }

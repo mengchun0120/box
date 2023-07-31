@@ -4,26 +4,27 @@ import android.content.res.Resources
 import android.util.Log
 import android.opengl.GLES30 as GL
 
-class SimpleProgram private constructor(): ShaderProgram() {
-    private var useObjRefLoc: Int = -1
-    private var objRefLoc: Int = -1
-    private var viewportSizeLoc: Int = -1
-    private var viewportOriginLoc: Int = -1
-    private var directionLoc: Int = -1
-    private var useDirectionLoc: Int = -1
-    private var positionLoc: Int = -1
-    private var texPosLoc: Int = -1
-    private var useColorLoc: Int = -1
-    private var useTexColorLoc: Int = -1
-    private var colorLoc: Int = -1
-    private var texColorLoc: Int = -1
-    private var texLoc: Int = -1
-    private var alphaLoc: Int = -1
+class SimpleProgram(res: Resources):
+    ShaderProgram(
+        res,
+        R.raw.simple_vertex_shader,
+        R.raw.simple_frag_shader
+    ) {
 
-    companion object {
-        fun create(res: Resources): SimpleProgram? =
-            SimpleProgram().takeIf{ it.init(res) }
-    }
+    private var useObjRefLoc: Int = getUniformLocation("useObjRef")
+    private var objRefLoc: Int = getUniformLocation("objRef")
+    private var viewportSizeLoc: Int = getUniformLocation("viewportSize")
+    private var viewportOriginLoc: Int = getUniformLocation("viewportOrigin")
+    private var directionLoc: Int = getUniformLocation("direction")
+    private var useDirectionLoc: Int = getUniformLocation("useDirection")
+    private var positionLoc: Int = getAttributeLocation("position")
+    private var texPosLoc: Int = getAttributeLocation("texPos")
+    private var useColorLoc: Int = getUniformLocation("useColor")
+    private var useTexColorLoc: Int = getUniformLocation("useTexColor")
+    private var colorLoc: Int = getUniformLocation("color")
+    private var texColorLoc: Int = getUniformLocation("texColor")
+    private var texLoc: Int = getUniformLocation("tex")
+    private var alphaLoc: Int = getUniformLocation("alpha")
 
     fun setUseObj(enabled: Boolean) =
         GL.glUniform1i(useObjRefLoc, if (enabled) 1 else 0)
@@ -76,33 +77,5 @@ class SimpleProgram private constructor(): ShaderProgram() {
         GL.glUniform1i(texLoc, 0);
         GL.glActiveTexture(GL.GL_TEXTURE0);
         GL.glBindTexture(GL.GL_TEXTURE_2D, texId);
-    }
-
-    private fun init(res: Resources): Boolean =
-        if (init(res, R.raw.simple_vertex_shader, R.raw.simple_frag_shader) && initVarLoc()) {
-            Log.i(TAG, "SimpleProgram created successfully")
-            true
-        } else {
-            Log.e(TAG, "Failed to create SimpleProgram")
-            close()
-            false
-        }
-
-    private fun initVarLoc(): Boolean {
-        useObjRefLoc = getUniformLocation("useObjRef") ?: return false
-        objRefLoc = getUniformLocation("objRef") ?: return false
-        viewportSizeLoc = getUniformLocation("viewportSize") ?: return false
-        viewportOriginLoc = getUniformLocation("viewportOrigin") ?: return false
-        directionLoc = getUniformLocation("direction") ?: return false
-        useDirectionLoc = getUniformLocation("useDirection") ?: return false
-        positionLoc = getAttributeLocation("position") ?: return false
-        texPosLoc = getAttributeLocation("texPos") ?: return false
-        useColorLoc = getUniformLocation("useColor") ?: return false
-        useTexColorLoc = getUniformLocation("useTexColor") ?: return false
-        colorLoc = getUniformLocation("color") ?: return false
-        texColorLoc = getUniformLocation("texColor") ?: return false
-        texLoc = getUniformLocation("tex") ?: return false
-        alphaLoc = getUniformLocation("alpha") ?: return false
-        return true
     }
 }

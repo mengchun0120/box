@@ -40,28 +40,25 @@ class Color {
         assign(r, g, b, a)
     }
 
-    constructor(a: Collection<Float>) {
-        assign(a)
-    }
-
     constructor(a: FloatArray) {
         assign(a)
     }
 
-    fun assign(r: Int, g: Int, b: Int, a: Int): Color {
-        red = toFloat(r)
-        green = toFloat(g)
-        blue = toFloat(b)
-        alpha = toFloat(a)
-        return this
-    }
+    fun assign(r: Int, g: Int, b: Int, a: Int): Color =
+        this.also {
+            red = toFloat(r)
+            green = toFloat(g)
+            blue = toFloat(b)
+            alpha = toFloat(a)
+        }
 
-    fun assign(r: Float, g: Float, b: Float, a: Float) {
-        red = r
-        green = g
-        blue = b
-        alpha = a
-    }
+    fun assign(r: Float, g: Float, b: Float, a: Float): Color =
+        this.also {
+            red = r
+            green = g
+            blue = b
+            alpha = a
+        }
 
     fun assign(a: Collection<Int>): Color {
         if (a.size != 4) {
@@ -70,18 +67,6 @@ class Color {
 
         for ((idx, e) in a.withIndex()) {
             data[idx] = validate(toFloat(e))
-        }
-
-        return this
-    }
-
-    fun assign(a: Collection<Float>): Color {
-        if (a.size != 4) {
-            throw IllegalArgumentException("collection is of wrong size")
-        }
-
-        for ((idx, e) in a.withIndex()) {
-            data[idx] = validate(e)
         }
 
         return this

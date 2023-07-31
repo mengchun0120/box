@@ -7,15 +7,21 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30 as GL
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
-    private var program: SimpleProgram? = null
+    private lateinit var program: SimpleProgram
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
-        program = SimpleProgram.create(context.resources)
+        program = SimpleProgram(context.resources)
         GL.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GL.glViewport(0, 0, width, height)
+
+        val viewportSize = Vector(width.toFloat(), height.toFloat())
+        val viewportOrigin = viewportSize / 2.0f
+
+        program.setViewportSize(viewportSize.data)
+        program.setViewportOrigin(viewportOrigin.data)
     }
 
     override fun onDrawFrame(p0: GL10?) {
