@@ -22,7 +22,7 @@ class Polygon(
         texPosData?.toFloatArray(),
         floatsPerTexPos,
     ) {
-    
+
     }
 
     private fun prepareBlocks(
@@ -45,12 +45,12 @@ class Polygon(
         borderColor: Color?,
         textureId: Int,
         texColor: Color?,
-        fillMode: Int,
-        fillStart: Int,
-        fillVertexCount: Int,
-        borderMode: Int,
-        borderStart: Int,
-        borderVertexCount: Int
+        fillMode: Int = GL.GL_TRIANGLE_FAN,
+        fillStart: Int = 0,
+        fillVertexCount: Int = 0,
+        borderMode: Int = GL.GL_LINE_LOOP,
+        borderStart: Int = 1,
+        borderVertexCount: Int = 0
     ) {
         if (objRef != null) {
             program.setUseColor(true)

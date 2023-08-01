@@ -9,11 +9,17 @@ import android.opengl.GLES30 as GL
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var program: SimpleProgram
     private lateinit var triangle: Polygon
+    private lateinit var trianglePos: Vector
+    private lateinit var fillColor: Color
+    private lateinit var borderColor: Color
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         GL.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
 
-
+        initShader()
+        initShapes()
+        initPos()
+        initColors()
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
@@ -28,6 +34,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     override fun onDrawFrame(p0: GL10?) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+
+        program.use()
+        program.setAlpha(1.0f)
+        triangle.draw(program, trianglePos, null, fillColor, null,
+              0, null)
     }
 
     private fun initShader() {
@@ -35,7 +46,23 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         program.use()
     }
 
-    private fun initShape() {
+    private fun initShapes() {
+        triangle = Polygon(
+            posData = listOf(
+                Vector(0.0f, 0.0f),
+                Vector(100.0f, 0.0f),
+                Vector(100.0f, 100.0f),
+                Vector(0.0f, 0.0f)
+            )
+        )
+    }
 
+    private fun initPos() {
+        trianglePos = Vector(200.0f, 200.0f)
+    }
+
+    private fun initColors() {
+        fillColor = Color(255, 255, 0, 255)
+        borderColor = Color(0, 0, 255, 255)
     }
 }
