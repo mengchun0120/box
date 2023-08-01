@@ -60,5 +60,12 @@ class VectorTest {
         var t1 = Vector(1.0f, 2.0f)
 
         t1.assign(Vector(2.0f, 5.0f))
+        assertTrue(t1 == Vector(2.0f, 5.0f))
+
+        t1.assign(listOf(3.0f, 4.0f))
+        assertTrue(t1 == Vector(3.0f, 4.0f))
+
+        var t2 = t1.copy()
+        assertTrue(t2 == Vector(3.0f, 4.0f))
     }
 }

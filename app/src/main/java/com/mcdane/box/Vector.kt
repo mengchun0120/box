@@ -111,6 +111,13 @@ open class Vector(val dim: Int) {
         }
     }
 
+    fun assign(a: Collection<Float>): Vector {
+        if (dim != a.size) throw java.lang.IllegalArgumentException("Dimension doesn't match")
+
+        populate(a.withIndex())
+        return this
+    }
+
     fun copy(): Vector =
         Vector(dim).also { data.copyInto(it.data) }
 

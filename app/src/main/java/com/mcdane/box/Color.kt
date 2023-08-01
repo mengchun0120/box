@@ -88,6 +88,12 @@ class Color {
 
     override fun toString(): String = data.joinToString(prefix="[", postfix="]")
 
+    override fun equals(other: Any?): Boolean {
+        val o: Color = other as? Color ?: return false
+
+        return o.red == red && o.green == green && o.blue == blue && o.alpha == alpha
+    }
+
     private fun validate(f: Float): Float =
         if (f in 0.0f..1.0f) {
             f
