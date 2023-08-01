@@ -182,3 +182,20 @@ open class Vector(val dim: Int) {
 
     override fun toString(): String = data.joinToString(prefix="[", postfix="]")
 }
+
+val Iterable<Vector>.numFloats: Int
+    get() {
+        var c = 0
+        this.forEach{ c += it.data.size }
+        return c
+    }
+
+fun Iterable<Vector>.toFloatArray(): FloatArray =
+    FloatArray(this.numFloats).also {
+        var idx = 0
+        for (v in this) {
+            for (f in v.data) {
+                it[idx++] = f
+            }
+        }
+    }

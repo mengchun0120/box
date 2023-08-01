@@ -35,7 +35,7 @@ class BufferDescriptor(
     }
 }
 
-class VertexArray private constructor() {
+class VertexArray {
     private val arrayObjBuf = IntBuffer.allocate(1)
     private val bufferObjBuf = IntBuffer.allocate(1)
     private val blocks = mutableListOf<BufferDescriptor>()
@@ -55,9 +55,12 @@ class VertexArray private constructor() {
     val numBlocks: Int
         get() = blocks.size
 
-    companion object {
-        fun create(buffers: List<BufferBlock>): VertexArray? =
-           VertexArray().takeIf{ it.init(buffers) }
+    constructor(vararg a: BufferBlock) {
+        init(a.asIterable())
+    }
+
+    constructor(a: Iterable<BufferBlock>) {
+        init(a)
     }
 
     fun close() {
@@ -79,42 +82,34 @@ class VertexArray private constructor() {
 
     fun stride(index: Int) = blocks[index].stride
 
-    private fun init(buffers: List<BufferBlock>): Boolean =
-        if (initArrayObj() && initBufferObj()) {
-            initBlocks(buffers)
-            true
-        } else {
-            close()
-            false
-        }
+    private fun init(a: Iterable<BufferBlock>) {
+        initArrayObj()
+        initBufferObj()
+        initBlocks(a)
+    }
 
-    private fun initArrayObj(): Boolean {
+    private fun initArrayObj() {
         GL.glGenVertexArrays(1, arrayObjBuf)
-        return if (arrayObj != 0) {
-            true
-        } else {
-            Log.e(TAG, "glGenVertexArrays failed")
-            false
+        if (arrayObj == 0) {
+            throw RuntimeException("glGenVertexArrays failed")
         }
     }
 
-    private fun initBufferObj(): Boolean {
+    private fun initBufferObj() {
         GL.glGenBuffers(1, bufferObjBuf)
-        return if (bufferObj != 0) {
-            true
-        } else {
-            Log.e(TAG, "glGenBuffers failed")
-            false
+        if (bufferObj == 0) {
+            throw RuntimeException("glGenBuffers failed")
         }
     }
 
-    private fun initBlocks(buffers: Collection<BufferBlock>) {
+    private fun initBlocks(a: Iterable<BufferBlock>) {
         var offset = 0
-        for (blk in buffers)
+        for (blk in a) {
             storeBlock(blk, offset).apply {
                 blocks.add(this)
                 offset += this.totalSize
             }
+        }
     }
 
     private fun storeBlock(blk: BufferBlock, offset: Int): BufferDescriptor =

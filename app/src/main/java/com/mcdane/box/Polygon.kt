@@ -2,31 +2,40 @@ package com.mcdane.box
 
 import android.opengl.GLES30 as GL
 
-class Polygon private constructor(val va: VertexArray) {
+class Polygon(
+    posData: FloatArray,
+    floatsPerPos: Int = FLOATS_PER_POS_2D,
+    texPosData: FloatArray?,
+    floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
+) {
 
-    companion object {
-        fun create(
-            posData: FloatArray,
-            texPosData: FloatArray?,
-            floatsPerPos: Int = FLOATS_PER_POS_2D,
-            floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D
-        ): Polygon? =
-            VertexArray.create(
-                prepareBlocks(posData, texPosData, floatsPerPos, floatsPerTexPos)
-            )?.run { Polygon(this) }
+    val va = VertexArray(prepareBlocks(posData, floatsPerPos, texPosData, floatsPerTexPos))
 
-        private fun prepareBlocks(
-            posData: FloatArray,
-            texPosData: FloatArray?,
-            floatsPerPos: Int,
-            floatsPerTexPos: Int
-        ): List<BufferBlock> =
-            mutableListOf( BufferBlock(posData, floatsPerPos) ).also {
-                if (texPosData != null) {
-                    it.add( BufferBlock(texPosData, floatsPerTexPos) )
-                }
-            }
+    constructor(
+        posData: Iterable<Vector>,
+        floatsPerPos: Int = FLOATS_PER_POS_2D,
+        texPosData: Iterable<Vector>? = null,
+        floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
+    ): this(
+        posData.toFloatArray(),
+        floatsPerPos,
+        texPosData?.toFloatArray(),
+        floatsPerTexPos,
+    ) {
+    
     }
+
+    private fun prepareBlocks(
+        posData: FloatArray,
+        floatsPerPos: Int,
+        texPosData: FloatArray?,
+        floatsPerTexPos: Int
+    ): List<BufferBlock> =
+        mutableListOf( BufferBlock(posData, floatsPerPos) ).also {
+            if (texPosData != null) {
+                it.add( BufferBlock(texPosData, floatsPerTexPos) )
+            }
+        }
 
     fun draw(
         program: SimpleProgram,

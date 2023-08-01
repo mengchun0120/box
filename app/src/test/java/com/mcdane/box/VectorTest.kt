@@ -6,7 +6,7 @@ import org.junit.Assert.*
 
 class VectorTest {
     @Test
-    fun accessor_works() {
+    fun accessorWorks() {
         val t1 = Vector(1.0f, 12.0f, 23.0f, 5.0f, 9.0f)
 
         assertTrue(t1[0] == 1.0f)
@@ -19,7 +19,7 @@ class VectorTest {
     }
 
     @Test
-    fun equals_works() {
+    fun equalsWorks() {
         val t1 = Vector(1.0f, 2.0f)
         val t2 = Vector(2.0f, 3.0f)
         val t3 = Vector(1.0f, 2.0f)
@@ -33,7 +33,7 @@ class VectorTest {
     }
 
     @Test
-    fun arithmetic_works() {
+    fun arithmeticWorks() {
         val t1 = Vector(1.0f, 2.0f)
         val t2 = Vector(2.0f, 3.0f)
         val t3 = Vector(3.0f, 4.0f)
@@ -56,7 +56,7 @@ class VectorTest {
     }
 
     @Test
-    fun assign_copy_works() {
+    fun assignCopyWorks() {
         var t1 = Vector(1.0f, 2.0f)
 
         t1.assign(Vector(2.0f, 5.0f))
@@ -67,5 +67,24 @@ class VectorTest {
 
         var t2 = t1.copy()
         assertTrue(t2 == Vector(3.0f, 4.0f))
+    }
+
+    @Test
+    fun extMethodWorks() {
+        val a = listOf(
+            Vector(1.0f, 2.0f),
+            Vector(2.0f),
+            Vector(3.0f, 4.0f)
+        )
+
+        val b = a.toFloatArray()
+        assertTrue(b.size == 5)
+        assertTrue(
+            b[0] == 1.0f &&
+            b[1] == 2.0f &&
+            b[2] == 2.0f &&
+            b[3] == 3.0f &&
+            b[4] == 4.0f
+        )
     }
 }
