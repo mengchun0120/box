@@ -17,9 +17,7 @@ class BufferBlock(
             _data.size / floatsPerVertex,
             floatsPerVertex * Float.SIZE_BYTES,
             _stride
-        ) {
-    }
-
+        )
 }
 
 class BufferDescriptor(
@@ -31,8 +29,7 @@ class BufferDescriptor(
     val totalSize = numVertices * vertexSize
 
     constructor(b: BufferBlock, offset: Int) :
-        this(b.numVertices, b.vertexSize, b.stride, offset) {
-    }
+        this(b.numVertices, b.vertexSize, b.stride, offset)
 }
 
 class VertexArray {

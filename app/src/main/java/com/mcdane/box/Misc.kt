@@ -16,7 +16,7 @@ fun FloatArray.toFloatBuffer(): FloatBuffer =
     ByteBuffer.allocate(this.size * Float.SIZE_BYTES).run {
         order(ByteOrder.nativeOrder())
         asFloatBuffer().apply {
-            put(this)
+            put(this@toFloatBuffer)
             position(0)
         }
     }

@@ -11,4 +11,6 @@ class MainActivity : AppCompatActivity() {
         view = GameView(this)
         setContentView(view)
     }
+
+    
 }

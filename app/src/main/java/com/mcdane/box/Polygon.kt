@@ -9,7 +9,7 @@ class Polygon(
     floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
 ) {
 
-    val va = VertexArray(prepareBlocks(posData, floatsPerPos, texPosData, floatsPerTexPos))
+    private val va = VertexArray(prepareBlocks(posData, floatsPerPos, texPosData, floatsPerTexPos))
 
     constructor(
         posData: Iterable<Vector>,
@@ -21,21 +21,7 @@ class Polygon(
         floatsPerPos,
         texPosData?.toFloatArray(),
         floatsPerTexPos,
-    ) {
-
-    }
-
-    private fun prepareBlocks(
-        posData: FloatArray,
-        floatsPerPos: Int,
-        texPosData: FloatArray?,
-        floatsPerTexPos: Int
-    ): List<BufferBlock> =
-        mutableListOf( BufferBlock(posData, floatsPerPos) ).also {
-            if (texPosData != null) {
-                it.add( BufferBlock(texPosData, floatsPerTexPos) )
-            }
-        }
+    )
 
     fun draw(
         program: SimpleProgram,
@@ -53,10 +39,10 @@ class Polygon(
         borderVertexCount: Int = 0
     ) {
         if (objRef != null) {
-            program.setUseColor(true)
+            program.setUseObjRef(true)
             program.setObjRef(objRef.data)
         } else {
-            program.setUseColor(false)
+            program.setUseObjRef(false)
         }
 
         if (direction != null) {
@@ -66,32 +52,31 @@ class Polygon(
             program.setUseDirection(false)
         }
 
-        program.setPositionTexPos(va);
-        program.setUseColor(textureId == 0);
+        program.setPositionTexPos(va)
+        program.setUseColor(textureId == 0)
 
         if (textureId == 0) {
             if (fillColor != null) {
                 program.setColor(fillColor.data)
 
-                val count = if (fillVertexCount > 0) {
+                val fillSize = if (fillVertexCount > 0) {
                     fillVertexCount
                 } else {
-                    va.vertexSize(0)
+                    va.numVertices(0)
                 }
 
-                GL.glDrawArrays(fillMode, fillStart, count)
+                GL.glDrawArrays(fillMode, fillStart, fillSize)
             }
 
             if (borderColor != null) {
                 program.setColor(borderColor.data)
-
-                val count = if (borderVertexCount > 0) {
+                val borderSize = if (borderVertexCount > 0) {
                     borderVertexCount
                 } else {
-                    va.vertexSize(0) - 2
+                    va.numVertices(0) - 2
                 }
 
-                GL.glDrawArrays(borderMode, borderStart, count)
+                GL.glDrawArrays(borderMode, borderStart, borderSize)
             }
         } else {
             program.setTexture(textureId)
@@ -103,13 +88,29 @@ class Polygon(
                 program.setUseTexColor(false)
             }
 
-            val count = if (fillVertexCount > 0) {
+            val fillSize = if (fillVertexCount > 0) {
                 fillVertexCount
             } else {
-                va.vertexSize(0)
+                va.numVertices(0)
             }
 
-            GL.glDrawArrays(fillMode, fillStart, count)
+            GL.glDrawArrays(fillMode, fillStart, fillSize)
         }
     }
+
+    fun close() {
+        va.close()
+    }
+
+    private fun prepareBlocks(
+        posData: FloatArray,
+        floatsPerPos: Int,
+        texPosData: FloatArray?,
+        floatsPerTexPos: Int
+    ): List<BufferBlock> =
+        mutableListOf( BufferBlock(posData, floatsPerPos) ).also {
+            if (texPosData != null) {
+                it.add( BufferBlock(texPosData, floatsPerTexPos) )
+            }
+        }
 }

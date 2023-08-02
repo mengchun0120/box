@@ -26,7 +26,7 @@ class SimpleProgram(res: Resources):
     private var texLoc: Int = getUniformLocation("tex")
     private var alphaLoc: Int = getUniformLocation("alpha")
 
-    fun setUseObj(enabled: Boolean) =
+    fun setUseObjRef(enabled: Boolean) =
         GL.glUniform1i(useObjRefLoc, if (enabled) 1 else 0)
 
     fun setObjRef(objRef: FloatArray) =

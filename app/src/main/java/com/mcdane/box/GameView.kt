@@ -10,4 +10,8 @@ class GameView(cxt: Context): GLSurfaceView(cxt) {
         setEGLContextClientVersion(3)
         setRenderer(renderer)
     }
+
+    fun close() {
+        renderer.close()
+    }
 }

@@ -37,8 +37,13 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
         program.use()
         program.setAlpha(1.0f)
-        triangle.draw(program, trianglePos, null, fillColor, null,
+        triangle.draw(program, trianglePos, null, fillColor, borderColor,
               0, null)
+    }
+
+    fun close() {
+        triangle.close()
+        program.close()
     }
 
     private fun initShader() {
