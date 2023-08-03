@@ -2,6 +2,7 @@ package com.mcdane.box
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
     private lateinit var view: GameView
@@ -12,5 +13,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG, "onDestroy")
+        view.close()
+    }
 }

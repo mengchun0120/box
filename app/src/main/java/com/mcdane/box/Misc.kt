@@ -13,7 +13,7 @@ const val TEXPOS_SIZE_2D = FLOATS_PER_TEXPOS_2D * Float.SIZE_BYTES
 const val DIRECTION_SIZE_2D = FLOATS_PER_DIRECTION_2D * Float.SIZE_BYTES
 
 fun FloatArray.toFloatBuffer(): FloatBuffer =
-    ByteBuffer.allocate(this.size * Float.SIZE_BYTES).run {
+    ByteBuffer.allocateDirect(this.size * Float.SIZE_BYTES).run {
         order(ByteOrder.nativeOrder())
         asFloatBuffer().apply {
             put(this@toFloatBuffer)
