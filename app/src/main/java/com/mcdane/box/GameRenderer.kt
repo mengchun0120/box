@@ -14,7 +14,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var borderColor: Color
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
-        GL.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GL.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
 
         initShader()
         initShapes()
@@ -37,12 +37,24 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
         program.use()
         program.setAlpha(1.0f)
-        triangle.draw(program, trianglePos, null, fillColor, borderColor,
-              0, null)
+        triangle.draw(
+            program,
+            trianglePos,
+            null,
+            fillColor,
+            borderColor,
+            0,
+            null,
+            GL.GL_TRIANGLES,
+            0,
+            3,
+            GL.GL_LINE_LOOP,
+            0,
+            3
+        )
     }
 
     fun close() {
-        triangle.close()
         program.close()
     }
 
@@ -57,7 +69,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
                 Vector(0.0f, 0.0f),
                 Vector(100.0f, 0.0f),
                 Vector(100.0f, 100.0f),
-                Vector(0.0f, 0.0f)
             )
         )
     }

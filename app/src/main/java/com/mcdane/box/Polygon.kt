@@ -5,11 +5,11 @@ import android.opengl.GLES30 as GL
 class Polygon(
     posData: FloatArray,
     floatsPerPos: Int = FLOATS_PER_POS_2D,
-    texPosData: FloatArray?,
+    texPosData: FloatArray? = null,
     floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
 ) {
-
-    private val va = VertexArray(prepareBlocks(posData, floatsPerPos, texPosData, floatsPerTexPos))
+    private val pos = VertexArray(posData, floatsPerPos)
+    private val texPos: VertexArray? = texPosData?.run{ VertexArray(texPosData, floatsPerTexPos) }
 
     constructor(
         posData: Iterable<Vector>,
@@ -52,65 +52,51 @@ class Polygon(
             program.setUseDirection(false)
         }
 
-        program.setPositionTexPos(va)
+        program.setPosition(pos)
         program.setUseColor(textureId == 0)
 
         if (textureId == 0) {
-            if (fillColor != null) {
-                program.setColor(fillColor.data)
+            fillColor?.apply {
+                program.setColor(this)
 
-                val fillSize = if (fillVertexCount > 0) {
+                val count = if (fillVertexCount > 0) {
                     fillVertexCount
                 } else {
-                    va.numVertices(0)
+                    pos.numVertices
                 }
 
-                GL.glDrawArrays(fillMode, fillStart, fillSize)
+                GL.glDrawArrays(fillMode, fillStart, count)
             }
 
-            if (borderColor != null) {
-                program.setColor(borderColor.data)
-                val borderSize = if (borderVertexCount > 0) {
+            borderColor?.apply {
+                program.setColor(this)
+
+                val count = if (borderVertexCount > 0) {
                     borderVertexCount
                 } else {
-                    va.numVertices(0) - 2
+                    pos.numVertices - 2
                 }
 
-                GL.glDrawArrays(borderMode, borderStart, borderSize)
+                GL.glDrawArrays(borderMode, borderStart, count)
             }
         } else {
+            program.setTexPos(texPos!!)
             program.setTexture(textureId)
 
             if (texColor != null) {
                 program.setUseTexColor(true)
-                program.setTexColor(texColor.data)
+                program.setTexColor(texColor)
             } else {
                 program.setUseTexColor(false)
             }
 
-            val fillSize = if (fillVertexCount > 0) {
+            val count = if (fillVertexCount > 0) {
                 fillVertexCount
             } else {
-                va.numVertices(0)
+                pos.numVertices
             }
 
-            GL.glDrawArrays(fillMode, fillStart, fillSize)
+            GL.glDrawArrays(fillMode, fillStart, count)
         }
     }
-
-    fun close() {
-        va.close()
-    }
-
-    private fun prepareBlocks(
-        posData: FloatArray,
-        floatsPerPos: Int,
-        texPosData: FloatArray?,
-        floatsPerTexPos: Int
-    ): List<BufferBlock> =
-        mutableListOf( BufferBlock(posData, floatsPerPos) ).also {
-            if (texPosData != null) {
-                it.add( BufferBlock(texPosData, floatsPerTexPos) )
-            }
-        }
 }

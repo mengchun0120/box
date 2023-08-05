@@ -38,8 +38,8 @@ class SimpleProgram(res: Resources):
     fun setViewportOrigin(viewportOrigin: FloatArray) =
         GL.glUniform2fv(viewportOriginLoc, 1, viewportOrigin, 0)
 
-    fun setColor(color: FloatArray) =
-        GL.glUniform4fv(colorLoc, 1, color, 0)
+    fun setColor(color: Color) =
+        GL.glUniform4fv(colorLoc, 1, color.data, 0)
 
     fun setUseColor(use: Boolean) =
         GL.glUniform1i(useColorLoc, if (use) 1 else 0)
@@ -53,24 +53,34 @@ class SimpleProgram(res: Resources):
     fun setUseTexColor(use: Boolean) =
         GL.glUniform1i(useTexColorLoc, if (use) 1 else 0)
 
-    fun setTexColor(texColor: FloatArray) =
-        GL.glUniform4fv(texColorLoc, 1, texColor, 0)
+    fun setTexColor(texColor: Color) =
+        GL.glUniform4fv(texColorLoc, 1, texColor.data, 0)
 
     fun setAlpha(alpha: Float) =
         GL.glUniform1f(alphaLoc, alpha)
 
-    fun setPositionTexPos(va: VertexArray) {
-        GL.glBindVertexArray(va.arrayObj)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, va.bufferObj)
-        GL.glVertexAttribPointer(positionLoc, FLOATS_PER_POS_2D,  GL.GL_FLOAT, false,
-                                 va.stride(0), va.offset(0))
+    fun setPosition(pos: VertexArray) {
         GL.glEnableVertexAttribArray(positionLoc)
+        GL.glVertexAttribPointer(
+            positionLoc,
+            FLOATS_PER_POS_2D,
+            GL.GL_FLOAT,
+            false,
+            0,
+            pos.data
+        )
+    }
 
-        if (va.numBlocks > 1) {
-            GL.glVertexAttribPointer(texPosLoc, FLOATS_PER_POS_2D,  GL.GL_FLOAT, false,
-                va.stride(1), va.offset(1))
-            GL.glEnableVertexAttribArray(texPosLoc)
-        }
+    fun setTexPos(texPos: VertexArray) {
+        GL.glEnableVertexAttribArray(texPosLoc)
+        GL.glVertexAttribPointer(
+            texPosLoc,
+            FLOATS_PER_TEXPOS_2D,
+            GL.GL_FLOAT,
+            false,
+            0,
+            texPos.data
+        )
     }
 
     fun setTexture(texId: Int) {

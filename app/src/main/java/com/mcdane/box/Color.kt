@@ -28,6 +28,8 @@ class Color {
             data[3] = validate(v)
         }
 
+    constructor(): this(0, 0, 0, 0)
+
     constructor(r: Int, g: Int, b: Int, a: Int) {
         assign(r, g, b, a)
     }
@@ -102,6 +104,6 @@ class Color {
         }
 
     private fun toFloat(c: Int): Float {
-        return c / 255.0f
+        return c.toFloat() / 255.0f
     }
 }

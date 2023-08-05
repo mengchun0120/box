@@ -72,4 +72,40 @@ class ColorTest {
         assertTrue(c1 == c2)
         assertTrue(c1 != c3)
     }
+
+    @Test
+    fun assignWorks() {
+        val c1 = Color()
+        c1.assign(100, 200, 200, 210)
+        assertTrue(
+            c1.red == 100f / 255f &&
+            c1.green == 200f / 255f &&
+            c1.blue == 200f / 255f &&
+            c1.alpha == 210f / 255f
+        )
+
+        c1.assign(1.0f, 0.5f, 1.0f, 0.5f)
+        assertTrue(
+            c1.red == 1.0f &&
+            c1.green == 0.5f &&
+            c1.blue == 1.0f &&
+            c1.alpha == 0.5f
+        )
+
+        c1.assign(listOf(150, 130, 220, 220))
+        assertTrue(
+            c1.red == 150f / 255f &&
+            c1.green == 130f / 255f &&
+            c1.blue == 220f / 255f &&
+            c1.alpha == 220f / 255f
+        )
+
+        c1.assign(floatArrayOf(1.0f, 0.2f, 0.7f, 0.75f))
+        assertTrue(
+            c1.red == 1.0f &&
+            c1.green == 0.2f &&
+            c1.blue == 0.7f &&
+            c1.alpha == 0.75f
+        )
+    }
 }

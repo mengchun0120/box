@@ -7,11 +7,12 @@ import android.opengl.GLES30 as GL
 open class ShaderProgram(
     res: Resources,
     vertexShaderResId: Int,
-    fragShaderResId: Int) {
+    fragShaderResId: Int
+) {
 
-    protected var program: Int = 0
-    protected var vertexShader: Int = 0
-    protected var fragShader: Int = 0
+    protected val program: Int
+    protected val vertexShader: Int
+    protected val fragShader: Int
 
     init {
         vertexShader = createShader(ShaderType.VERTEX_SHADER, res, vertexShaderResId)
@@ -21,9 +22,6 @@ open class ShaderProgram(
 
     open fun close() {
         destroyProgramAndShader(program, vertexShader, fragShader)
-        program = 0
-        vertexShader = 0
-        fragShader = 0
     }
 
     fun use() = GL.glUseProgram(program)
