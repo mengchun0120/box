@@ -8,10 +8,13 @@ import android.opengl.GLES30 as GL
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var program: SimpleProgram
-    private lateinit var rect: Rectangle
-    private lateinit var rectPos: Vector
+    private lateinit var rect1: Rectangle
+    private lateinit var rectPos1: Vector
+    private lateinit var rect2: Rectangle
+    private lateinit var rectPos2: Vector
     private lateinit var fillColor: Color
     private lateinit var borderColor: Color
+    private lateinit var baby: Texture
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         GL.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -20,6 +23,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         initShapes()
         initPos()
         initColors()
+        initTextures()
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
@@ -37,7 +41,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
         program.use()
         program.setAlpha(1.0f)
-        rect.draw(program, rectPos, null, fillColor, borderColor)
+        rect1.draw(program, rectPos1, null, fillColor, borderColor)
+        rect2.draw(program, rectPos2, null, null, null, baby.id, null)
     }
 
     fun close() {
@@ -50,15 +55,21 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initShapes() {
-        rect = Rectangle(200.0f, 300.0f, false)
+        rect1 = Rectangle(200.0f, 300.0f, false)
+        rect2 = Rectangle(300.0f, 168.0f, true)
     }
 
     private fun initPos() {
-        rectPos = Vector(200.0f, 200.0f)
+        rectPos1 = Vector(200.0f, 200.0f)
+        rectPos2 = Vector(30.0f, 800.0f)
     }
 
     private fun initColors() {
         fillColor = Color(255, 255, 0, 255)
         borderColor = Color(0, 0, 255, 255)
+    }
+
+    private fun initTextures() {
+        baby = Texture(context.resources, R.raw.baby)
     }
 }

@@ -15,11 +15,11 @@ private fun createRectPosData(width: Float, height: Float): FloatArray =
 private fun createRectTexData(): FloatArray =
     floatArrayOf(
         0.5f, 0.5f,
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
         0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
         0.0f, 0.0f,
+        0.0f, 1.0f
     )
 
 class Rectangle(val width: Float, val height: Float, val hasTexture: Boolean = true):

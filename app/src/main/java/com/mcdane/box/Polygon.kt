@@ -56,11 +56,6 @@ open class Polygon(
                 program.setColor(it)
                 GL.glDrawArrays(fillMode, fillStart, fillVertexCount)
             }
-
-            borderColor?.let {
-                program.setColor(it)
-                GL.glDrawArrays(borderMode, borderStart, borderVertexCount)
-            }
         } else {
             program.setTexPos(texPos!!)
             program.setTexture(textureId)
@@ -73,6 +68,11 @@ open class Polygon(
             }
 
             GL.glDrawArrays(fillMode, fillStart, fillVertexCount)
+        }
+
+        borderColor?.let {
+            program.setColor(it)
+            GL.glDrawArrays(borderMode, borderStart, borderVertexCount)
         }
     }
 }

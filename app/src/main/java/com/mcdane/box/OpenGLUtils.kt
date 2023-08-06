@@ -1,6 +1,8 @@
 package com.mcdane.box
 
 import android.content.res.Resources
+import android.graphics.BitmapFactory
+import android.opengl.GLUtils
 import android.util.Log
 import android.opengl.GLES30 as GL
 import java.nio.IntBuffer
@@ -97,4 +99,24 @@ fun createProgram(vertexShader: Int, fragShader: Int): Int {
     }
 
     return program
+}
+
+fun createTexture(res: Resources, resId: Int): IntArray {
+    val textureIds = IntArray(1)
+    GL.glGenTextures(1, textureIds, 0)
+    if (textureIds[0] == 0) throw RuntimeException("glGenTextures failed")
+
+    GL.glBindTexture( GL.GL_TEXTURE_2D, textureIds[0] );
+    GL.glTexParameteri( GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR );
+    GL.glTexParameteri( GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR );
+    GL.glTexParameteri( GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
+    GL.glTexParameteri( GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+
+    val bitmap = BitmapFactory.decodeResource(res, resId)
+    GLUtils.texImage2D(GL.GL_TEXTURE_2D, 0, bitmap, 0)
+    bitmap.recycle()
+
+    GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
+
+    return textureIds
 }
