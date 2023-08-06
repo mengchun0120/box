@@ -2,25 +2,21 @@ package com.mcdane.box
 
 import android.opengl.GLES30 as GL
 
-class Polygon(
+open class Polygon(
     posData: FloatArray,
-    floatsPerPos: Int = FLOATS_PER_POS_2D,
     texPosData: FloatArray? = null,
-    floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
 ) {
-    private val pos = VertexArray(posData, floatsPerPos)
-    private val texPos: VertexArray? = texPosData?.run{ VertexArray(texPosData, floatsPerTexPos) }
+    private val pos = VertexArray(posData, FLOATS_PER_POS_2D)
+    private val texPos: VertexArray? = texPosData?.run {
+        VertexArray(texPosData, FLOATS_PER_TEXPOS_2D)
+    }
 
     constructor(
         posData: Iterable<Vector>,
-        floatsPerPos: Int = FLOATS_PER_POS_2D,
         texPosData: Iterable<Vector>? = null,
-        floatsPerTexPos: Int = FLOATS_PER_TEXPOS_2D,
     ): this(
         posData.toFloatArray(),
-        floatsPerPos,
         texPosData?.toFloatArray(),
-        floatsPerTexPos,
     )
 
     fun draw(
@@ -31,12 +27,12 @@ class Polygon(
         borderColor: Color?,
         textureId: Int,
         texColor: Color?,
-        fillMode: Int = GL.GL_TRIANGLE_FAN,
-        fillStart: Int = 0,
-        fillVertexCount: Int = 0,
-        borderMode: Int = GL.GL_LINE_LOOP,
-        borderStart: Int = 1,
-        borderVertexCount: Int = 0
+        fillMode: Int,
+        fillStart: Int,
+        fillVertexCount: Int,
+        borderMode: Int,
+        borderStart: Int,
+        borderVertexCount: Int
     ) {
         if (objRef != null) {
             program.setUseObjRef(true)
@@ -56,28 +52,14 @@ class Polygon(
         program.setUseColor(textureId == 0)
 
         if (textureId == 0) {
-            fillColor?.apply {
-                program.setColor(this)
-
-                val count = if (fillVertexCount > 0) {
-                    fillVertexCount
-                } else {
-                    pos.numVertices
-                }
-
-                GL.glDrawArrays(fillMode, fillStart, count)
+            fillColor?.let {
+                program.setColor(it)
+                GL.glDrawArrays(fillMode, fillStart, fillVertexCount)
             }
 
-            borderColor?.apply {
-                program.setColor(this)
-
-                val count = if (borderVertexCount > 0) {
-                    borderVertexCount
-                } else {
-                    pos.numVertices - 2
-                }
-
-                GL.glDrawArrays(borderMode, borderStart, count)
+            borderColor?.let {
+                program.setColor(it)
+                GL.glDrawArrays(borderMode, borderStart, borderVertexCount)
             }
         } else {
             program.setTexPos(texPos!!)
@@ -90,13 +72,7 @@ class Polygon(
                 program.setUseTexColor(false)
             }
 
-            val count = if (fillVertexCount > 0) {
-                fillVertexCount
-            } else {
-                pos.numVertices
-            }
-
-            GL.glDrawArrays(fillMode, fillStart, count)
+            GL.glDrawArrays(fillMode, fillStart, fillVertexCount)
         }
     }
 }

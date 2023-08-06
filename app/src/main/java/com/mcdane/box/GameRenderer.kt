@@ -8,8 +8,8 @@ import android.opengl.GLES30 as GL
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var program: SimpleProgram
-    private lateinit var triangle: Polygon
-    private lateinit var trianglePos: Vector
+    private lateinit var rect: Rectangle
+    private lateinit var rectPos: Vector
     private lateinit var fillColor: Color
     private lateinit var borderColor: Color
 
@@ -37,21 +37,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
         program.use()
         program.setAlpha(1.0f)
-        triangle.draw(
-            program,
-            trianglePos,
-            null,
-            fillColor,
-            borderColor,
-            0,
-            null,
-            GL.GL_TRIANGLES,
-            0,
-            3,
-            GL.GL_LINE_LOOP,
-            0,
-            3
-        )
+        rect.draw(program, rectPos, null, fillColor, borderColor)
     }
 
     fun close() {
@@ -64,17 +50,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initShapes() {
-        triangle = Polygon(
-            posData = listOf(
-                Vector(0.0f, 0.0f),
-                Vector(100.0f, 0.0f),
-                Vector(100.0f, 100.0f),
-            )
-        )
+        rect = Rectangle(200.0f, 300.0f, false)
     }
 
     private fun initPos() {
-        trianglePos = Vector(200.0f, 200.0f)
+        rectPos = Vector(200.0f, 200.0f)
     }
 
     private fun initColors() {
