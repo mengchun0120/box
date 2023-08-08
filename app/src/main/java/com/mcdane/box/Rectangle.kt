@@ -2,24 +2,27 @@ package com.mcdane.box
 
 import android.opengl.GLES30 as GL
 
-private fun createRectPosData(width: Float, height: Float): FloatArray =
-    floatArrayOf(
-        width / 2.0f, height / 2.0f,
+private fun createRectPosData(width: Float, height: Float): FloatArray {
+    val w = width / 2.0f
+    val h = height / 2.0f
+    return floatArrayOf(
         0.0f, 0.0f,
-        width, 0.0f,
-        width, height,
-        0.0f, height,
-        0.0f, 0.0f,
+        w, h,
+        -w, h,
+        -w, -h,
+        w, -h,
+        w, h,
     )
+}
 
 private fun createRectTexData(): FloatArray =
     floatArrayOf(
         0.5f, 0.5f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
         1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f
     )
 
 class Rectangle(val width: Float, val height: Float, val hasTexture: Boolean = true):

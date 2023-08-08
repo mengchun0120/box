@@ -61,7 +61,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     private fun initPos() {
         rectPos1 = Vector(200.0f, 200.0f)
-        rectPos2 = Vector(30.0f, 800.0f)
+        rectPos2 = Vector(400.0f, 800.0f)
     }
 
     private fun initColors() {
