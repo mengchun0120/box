@@ -42,7 +42,12 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
         fontHeights[sz.index]
 
     fun width(sz: TextSize, ch: Char): Float =
-        textures[ch.code].width * sz.scaleFactor
+        rect(sz, ch).width
+
+    fun rect(sz: TextSize, ch: Char): Rectangle {
+        val idx = fontRectIndices[sz.index][ch.code - minCharCode]
+        return fontRects[sz.index][idx]
+    }
 
     fun width(sz: TextSize, s: String): Float {
         var w = 0.0f
@@ -60,8 +65,14 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
         color: Color,
     ) {
         val p = Vector(pos[0], pos[1] + height(sz) / 2.0f)
+
         for (ch in s) {
-            
+            val r = rect(sz, ch)
+            val w = r.width / 2.0f
+
+            p[0] += w
+            r.draw(program, p, null, color, null, texture(ch).id)
+            p[0] += w
         }
     }
 
@@ -75,7 +86,7 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
         val idxArr = IntArray(charCount)
 
         for (i in 0 until charCount) {
-            val w = width(sz, i)
+            val w = (textures[i].width * SCALE_FACTORS[sz]).toInt()
             val rectIdx = widthRectMap[w]
             if (rectIdx == null) {
                 rectArr.add(Rectangle(w.toFloat(), height, true))
