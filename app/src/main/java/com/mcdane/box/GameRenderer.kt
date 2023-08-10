@@ -2,7 +2,9 @@ package com.mcdane.box
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.util.Log
 import org.w3c.dom.Text
+import java.io.File
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30 as GL
@@ -22,11 +24,13 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         GL.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         program = SimpleProgram(context.resources)
         program.use()
 
-        textSys = TextSystem(context.assets, "assets")
+        textSys = TextSystem(context.assets, "font")
         baby = Texture(context.resources, R.raw.baby)
     }
 
@@ -47,7 +51,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         program.setAlpha(1.0f)
         rect1.draw(program, rectPos1, null, fillColor, borderColor)
         rect2.draw(program, rectPos2, null, null, null, baby.id, null)
-        textSys.draw(program, helloStr, strPos, TextSize.MEDIUM, fillColor)
+        textSys.draw(program, helloStr, strPos, TextSize.BIG, fillColor)
     }
 
     fun close() {

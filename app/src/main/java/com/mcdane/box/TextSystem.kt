@@ -22,15 +22,15 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
     val charCount: Int = maxCharCode - minCharCode + 1
 
     private val textures = List<Texture>(charCount) {
-        Texture(mgr, fontFilePath(fontDir, it))
+        Texture(mgr, fontFilePath(it, fontDir))
     }
 
     private val fontHeights  = List<Float>(TEXT_SIZE_COUNT) {
         textures[0].height * SCALE_FACTORS[it]
     }
 
-    private val fontRects = ArrayList<ArrayList<Rectangle>>(TEXT_SIZE_COUNT)
-    private val fontRectIndices = ArrayList<IntArray>(TEXT_SIZE_COUNT)
+    private val fontRects = ArrayList<ArrayList<Rectangle>>()
+    private val fontRectIndices = ArrayList<IntArray>()
 
     init {
         for (sz in 0 until TEXT_SIZE_COUNT) {
@@ -71,13 +71,13 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
             val w = r.width / 2.0f
 
             p[0] += w
-            r.draw(program, p, null, color, null, texture(ch).id)
+            r.draw(program, p, null, null, null, texture(ch).id, color)
             p[0] += w
         }
     }
 
-    private fun fontFilePath(fontDir: String, index: Int): String =
-        fontDir + File.pathSeparator + "ascii_" + index + ".png"
+    private fun fontFilePath(index: Int, fontDir: String): String =
+        fontDir + File.separator + "ascii_" + (minCharCode + index) + ".png"
 
     private fun initFontRectIndices(sz: Int) {
         val height = fontHeights[sz]
@@ -97,8 +97,8 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
             }
         }
 
-        fontRects[sz] = rectArr
-        fontRectIndices[sz] = idxArr
+        fontRects.add(rectArr)
+        fontRectIndices.add(idxArr)
     }
 
     private fun width(sz: Int, charIdx: Int): Int =
