@@ -14,12 +14,16 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var program: SimpleProgram
     private lateinit var textSys: TextSystem
     private val board = Board()
+    private val boardLeft = 20.0f
+    private lateinit var curBox: Box
     private val colors = listOf(
         Color(255, 0, 0, 255),
         Color(0, 0, 255, 255),
     )
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
+        Box.init(context.assets)
+
         GL.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
@@ -28,8 +32,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         program.use()
 
         textSys = TextSystem(context.assets, "font")
-
-
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
@@ -41,8 +43,10 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         program.setViewportSize(viewportSize.data)
         program.setViewportOrigin(viewportOrigin.data)
 
-        randomizeBoard()
-        board.pos = Vector(20.0f, 20.0f)
+        board.pos = Vector(
+            boardLeft,
+            (height.toFloat() - board.height) / 2.0f
+        )
     }
 
     override fun onDrawFrame(p0: GL10?) {
@@ -53,19 +57,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         board.draw(program)
     }
 
-    fun close() {
-        program.close()
+    fun onTouchDown() {
+
     }
 
-    fun randomizeBoard() {
-        for (r in 0 until board.rows) {
-            for (c in 0 until board.cols) {
-                board[r, c] = if (Random.nextBoolean()) {
-                    colors[Random.nextInt(0, 2)]
-                } else {
-                    null
-                }
-            }
-        }
+    fun close() {
+        program.close()
     }
 }

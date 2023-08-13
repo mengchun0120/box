@@ -2,6 +2,7 @@ package com.mcdane.box
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.view.MotionEvent
 
 class GameView(cxt: Context): GLSurfaceView(cxt) {
     private val renderer = GameRenderer(cxt)
@@ -9,6 +10,14 @@ class GameView(cxt: Context): GLSurfaceView(cxt) {
     init {
         setEGLContextClientVersion(3)
         setRenderer(renderer)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.actionMasked == MotionEvent.ACTION_DOWN) {
+            
+        }
+
+        return false
     }
 
     fun close() {
