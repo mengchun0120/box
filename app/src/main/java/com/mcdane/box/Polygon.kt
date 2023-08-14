@@ -1,5 +1,6 @@
 package com.mcdane.box
 
+import android.util.Log
 import android.opengl.GLES30 as GL
 
 open class Polygon(
@@ -34,6 +35,7 @@ open class Polygon(
         borderStart: Int,
         borderVertexCount: Int
     ) {
+        Log.i(TAG, "objRef=$objRef")
         if (objRef != null) {
             program.setUseObjRef(true)
             program.setObjRef(objRef.data)
@@ -60,11 +62,9 @@ open class Polygon(
             program.setTexPos(texPos!!)
             program.setTexture(textureId)
 
-            if (texColor != null) {
-                program.setUseTexColor(true)
+            program.setUseTexColor(texColor != null)
+            texColor?.let {
                 program.setTexColor(texColor)
-            } else {
-                program.setUseTexColor(false)
             }
 
             GL.glDrawArrays(fillMode, fillStart, fillVertexCount)

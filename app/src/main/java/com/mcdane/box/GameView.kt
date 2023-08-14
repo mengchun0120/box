@@ -14,7 +14,9 @@ class GameView(cxt: Context): GLSurfaceView(cxt) {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event?.actionMasked == MotionEvent.ACTION_DOWN) {
-            
+            queueEvent {
+                renderer.handlePointerDown(event)
+            }
         }
 
         return false
