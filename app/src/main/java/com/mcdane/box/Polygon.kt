@@ -35,7 +35,6 @@ open class Polygon(
         borderStart: Int,
         borderVertexCount: Int
     ) {
-        Log.i(TAG, "objRef=$objRef")
         if (objRef != null) {
             program.setUseObjRef(true)
             program.setObjRef(objRef.data)

@@ -35,7 +35,7 @@ def gen_boxes(input_file):
     return boxes
 
 def write_boxes(output_file, boxes):
-    f = open(output_file) if output_file != "" else sys.stdout
+    f = open(output_file, "w") if output_file != "" else sys.stdout
 
     for i in range(len(boxes)):
         f.write("{0:x}".format(boxes[i]))

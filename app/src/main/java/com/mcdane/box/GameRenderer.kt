@@ -55,10 +55,9 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         )
 
         curBoxPos = Vector(
-            board.pos[0] + 1.0f + curBoxCol * Box.boxSpan,
-            board.pos[1] + 1.0f + curBoxRow * Box.boxSpan
+            board.pos[0] + 1.0f + curBoxCol * Box.BOX_SPAN,
+            board.pos[1] + 1.0f + curBoxRow * Box.BOX_SPAN
         )
-        Log.i(TAG, "curBoxPos=$curBoxPos")
     }
 
     override fun onDrawFrame(p0: GL10?) {
@@ -68,18 +67,17 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         program.setAlpha(1.0f)
         //board.draw(program)
 
-        Log.i(TAG, "curBoxPos=$curBoxPos")
-        //Box.rect.draw(program, curBoxPos, null, colors[0], null)
         curBox.draw(program, curBoxPos, colors[0])
     }
 
     fun handlePointerDown(event: MotionEvent) {
-        if (curBox.index == Box.maxIndex) {
+        if (curBox.index == Box.MAX_INDEX) {
             curBox.type = if(curBox.type == Box.maxType) 0 else curBox.type + 1
             curBox.index = 0
         } else {
             curBox.index++
         }
+        Log.i(TAG, "curBox: ${curBox.type} ${curBox.index}")
     }
 
     fun close() {

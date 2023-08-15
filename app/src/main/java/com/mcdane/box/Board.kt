@@ -1,14 +1,16 @@
 package com.mcdane.box
 
 class Board {
-    val cols = 12
-    val rows = 34
-    private val board = Array<Array<Color?>>(rows) {
-        Array<Color?>(cols){ null }
+    companion object {
+        const val COL_COUNT = 12
+        const val ROW_COUNT = 34
+    }
+    private val board = Array<Array<Color?>>(ROW_COUNT) {
+        Array<Color?>(COL_COUNT){ null }
     }
     private val boundary = Rectangle(
-        cols * Box.boxSpan + Box.boxSpacing + 2.0f,
-        rows * Box.boxSpan + Box.boxSpacing + 2.0f
+        COL_COUNT * Box.BOX_SPAN + Box.BOX_SPACING + 2.0f,
+        ROW_COUNT * Box.BOX_SPAN + Box.BOX_SPACING + 2.0f
     )
     private val boudaryColor = Color(0, 0, 255, 255)
     private val center = Vector(2)
@@ -21,8 +23,8 @@ class Board {
             field = value
             center[0] = value[0] + width / 2.0f
             center[1] = value[1] + height / 2.0f
-            boxStartPos[0] = value[0] + 1.0f + Box.boxSpacing + Box.boxBreath / 2.0f
-            boxStartPos[1] = value[1] + 1.0f + Box.boxSpacing + Box.boxBreath / 2.0f
+            boxStartPos[0] = value[0] + 1.0f + Box.BOX_SPACING + Box.BOX_BREATH / 2.0f
+            boxStartPos[1] = value[1] + 1.0f + Box.BOX_SPACING + Box.BOX_BREATH / 2.0f
         }
 
     fun draw(program: SimpleProgram) {
@@ -44,9 +46,9 @@ class Board {
                 color?.let {
                     Box.rect.draw(program, p, null, color, null)
                 }
-                p[0] += Box.boxSpan
+                p[0] += Box.BOX_SPAN
             }
-            p[1] += Box.boxSpan
+            p[1] += Box.BOX_SPAN
         }
     }
 

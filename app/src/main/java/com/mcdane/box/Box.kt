@@ -8,30 +8,28 @@ class Box {
     companion object {
         private const val BOX_FILE = "boxes.txt"
         private const val BOX_RADIX = 16
-        private val boxes = mutableListOf<MutableList<Int>>()
-        val boxBreath = 50.0f
-        val boxSpacing = 1.0f
-        val boxSpan = boxBreath + boxSpacing
-        val rect = Rectangle(boxBreath, boxBreath, false)
+        val boxes = mutableListOf<MutableList<Int>>()
+        const val BOX_BREATH = 50.0f
+        const val BOX_SPACING = 1.0f
+        const val BOX_SPAN = BOX_BREATH + BOX_SPACING
+        val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
         val maxType: Int
             get() = boxes.size - 1
-        val maxIndex = 3
-        val boxRows = 4
-        val boxCols = 4
+        const val MAX_INDEX = 3
+        const val BOX_ROWS = 4
+        const val BOX_COLS = 4
 
         fun init(mgr: AssetManager) {
             mgr.open(BOX_FILE).use {
                 val scanner = Scanner(it)
-                var idx = 0
                 var row = mutableListOf<Int>()
                 while (scanner.hasNextInt(BOX_RADIX)) {
                     row.add(scanner.nextInt(BOX_RADIX))
-                    ++idx
-
-                    if (idx == maxIndex) {
+                    if (row.size == (MAX_INDEX + 1)) {
                         boxes.add(row)
-                        row = mutableListOf<Int>()
-                        idx = 0
+                        if (scanner.hasNextInt(BOX_RADIX)) {
+                            row = mutableListOf<Int>()
+                        }
                     }
                 }
             }
@@ -48,8 +46,8 @@ class Box {
 
     var index: Int = 0
         set(value) {
-            if (value !in 0..maxIndex) {
-                throw IllegalArgumentException("New index $value is not in [0, $maxIndex]")
+            if (value !in 0..MAX_INDEX) {
+                throw IllegalArgumentException("New index $value is not in [0, $MAX_INDEX]")
             }
             field = value
         }
@@ -69,21 +67,21 @@ class Box {
         pos: Vector,
         color: Color
     ) {
-        val displacement = boxSpacing + boxBreath / 2.0f
+        val displacement = BOX_SPACING + BOX_BREATH / 2.0f
         val startX = pos[0] + displacement
         val p = Vector(startX, pos[1] + displacement)
         var box = boxes[type][index]
 
-        for (row in 0 until boxRows) {
+        for (row in 0 until BOX_ROWS) {
             p[0] = startX
-            for (col in 0 until boxCols) {
+            for (col in 0 until BOX_COLS) {
                 if (box and 1 != 0) {
                     rect.draw(program, p, null, color, null)
                 }
                 box = box ushr 1
-                p[0] += boxSpan
+                p[0] += BOX_SPAN
             }
-            p[1] += boxSpan
+            p[1] += BOX_SPAN
         }
     }
 }
