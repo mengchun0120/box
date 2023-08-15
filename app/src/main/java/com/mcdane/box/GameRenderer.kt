@@ -11,6 +11,11 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
 import android.opengl.GLES30 as GL
 import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeToSequence
+
+@Serializable
+data class MyModel(val a: Int, val b: String = "42")
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var program: SimpleProgram
@@ -31,6 +36,9 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
         initGame()
+
+        val obj = Json.decodeFromString<List<MyModel>>("""[{"a":1,"b":"2"}]""")
+        Log.i(TAG, "Decoded: $obj") // MyModel(a=42, b="42")
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
