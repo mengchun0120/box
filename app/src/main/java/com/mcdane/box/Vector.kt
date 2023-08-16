@@ -23,11 +23,12 @@ open class Vector(val dim: Int) {
         populate(a.withIndex())
     }
 
-    fun <T: Iterable<IndexedValue<Float>>> populate(i: T) {
-        for ((idx, e) in i.withIndex()) {
-            data[idx] = e.value
+    fun <T: Iterable<IndexedValue<Float>>> populate(i: T): Vector =
+        this.also {
+            for ((idx, e) in i) {
+                data[idx] = e
+            }
         }
-    }
 
     operator fun get(idx: Int): Float = data[idx]
 
@@ -101,21 +102,21 @@ open class Vector(val dim: Int) {
             }
         }
 
+    fun assign(vararg args: Float): Vector =
+        if (dim == args.size) {
+            populate(args.withIndex())
+        } else {
+            throw IllegalArgumentException("Dimension doesn't match")
+        }
+
     fun assign(o: Vector): Vector {
         if (dim != o.dim) throw IllegalArgumentException("Dimension doesn't match")
-
-        return this.also {
-            for (idx in 0 until dim) {
-                this[idx] = o[idx]
-            }
-        }
+        return populate(o.data.withIndex())
     }
 
     fun assign(a: Collection<Float>): Vector {
         if (dim != a.size) throw java.lang.IllegalArgumentException("Dimension doesn't match")
-
-        populate(a.withIndex())
-        return this
+        return populate(a.withIndex())
     }
 
     fun copy(): Vector =
