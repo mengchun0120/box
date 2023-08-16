@@ -2,38 +2,78 @@ package com.mcdane.box
 
 import android.content.res.AssetManager
 import android.util.Log
-import java.util.Scanner
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+@Serializable
+data class BoxItem(val bitmaps: List<List<String>>, val color: List<Int>)
+
+class BoxConfig(val bitmaps: List<Int>, val color: Color) {
+    constructor(item: BoxItem):
+        this(
+            item.bitmaps.map{ transformBitmap(it) },
+            Color(item.color)
+        )
+
+    companion object {
+        private fun transformRow(rowStr: String): Int {
+            if (rowStr.length != Box.BOX_COLS) {
+                throw IllegalArgumentException("Invalid row size: $rowStr")
+            }
+
+            var row = 0
+            var mask = 1
+
+            for (digit in rowStr) {
+                if (digit == '1') row = row or mask
+                mask = mask shl 1
+            }
+
+            return row
+        }
+
+        private fun transformBitmap(bitmap: List<String>): Int {
+            if (bitmap.size != Box.BOX_ROWS) {
+                throw IllegalArgumentException("Invalid bitmap size (${bitmap.size})")
+            }
+
+            var retval = 0
+
+            for (rowStr in bitmap) {
+                retval = (retval shl 4) or transformRow(rowStr)
+            }
+
+            return retval
+        }
+    }
+
+    override fun toString() =
+        "BoxConfig(bitmaps=${bitmaps.map{ it.toString(16) }}, color=$color)"
+}
 
 class Box {
     companion object {
-        private const val BOX_FILE = "boxes.txt"
-        private const val BOX_RADIX = 16
-        val boxes = mutableListOf<MutableList<Int>>()
+        const val BOX_CONFIG_FILE = "boxes.json"
+        const val BOX_ROWS = 4
+        const val BOX_COLS = 4
         const val BOX_BREATH = 50.0f
         const val BOX_SPACING = 1.0f
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
+        lateinit var boxConfigs: List<BoxConfig>
         val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
         val maxType: Int
-            get() = boxes.size - 1
+            get() = boxConfigs.size - 1
         const val MAX_INDEX = 3
-        const val BOX_ROWS = 4
-        const val BOX_COLS = 4
 
-        fun init(mgr: AssetManager) {
-            mgr.open(BOX_FILE).use {
-                val scanner = Scanner(it)
-                var row = mutableListOf<Int>()
-                while (scanner.hasNextInt(BOX_RADIX)) {
-                    row.add(scanner.nextInt(BOX_RADIX))
-                    if (row.size == (MAX_INDEX + 1)) {
-                        boxes.add(row)
-                        if (scanner.hasNextInt(BOX_RADIX)) {
-                            row = mutableListOf<Int>()
-                        }
-                    }
-                }
-            }
+        fun init(assetMgr: AssetManager) {
+            boxConfigs = readBoxItems(assetMgr).map{ BoxConfig(it) }
         }
+
+        inline fun bitmap(type: Int, index: Int): Int =
+            boxConfigs[type].bitmaps[index]
+
+        private fun readBoxItems(mgr: AssetManager): List<BoxItem> =
+            Json.decodeFromStream<List<BoxItem>>(mgr.open(BOX_CONFIG_FILE))
     }
 
     var type: Int = 0
@@ -70,7 +110,7 @@ class Box {
         val displacement = BOX_SPACING + BOX_BREATH / 2.0f
         val startX = pos[0] + displacement
         val p = Vector(startX, pos[1] + displacement)
-        var box = boxes[type][index]
+        var box = bitmap(type, index)
 
         for (row in 0 until BOX_ROWS) {
             p[0] = startX

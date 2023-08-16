@@ -2,7 +2,7 @@ package com.mcdane.box
 
 class Board {
     companion object {
-        const val COL_COUNT = 12
+        const val COL_COUNT = 14
         const val ROW_COUNT = 34
     }
     private val board = Array<Array<Color?>>(ROW_COUNT) {
