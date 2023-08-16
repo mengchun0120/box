@@ -21,10 +21,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private var curBoxRow = 10
     private var curBoxCol = 8
     private lateinit var curBoxPos: Vector
-    private val colors = listOf(
-        Color(255, 0, 0, 255),
-        Color(0, 0, 255, 255),
-    )
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -39,7 +35,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     override fun onDrawFrame(p0: GL10?) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
-        curBox.draw(program, curBoxPos, colors[0])
+        curBox.draw(program, curBoxPos)
     }
 
     fun handlePointerDown(event: MotionEvent) {
@@ -49,7 +45,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         } else {
             curBox.index++
         }
-        Log.i(TAG, "curBox: ${curBox.type} ${curBox.index}")
     }
 
     fun close() {

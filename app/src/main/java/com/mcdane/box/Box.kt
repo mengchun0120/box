@@ -59,8 +59,8 @@ class Box {
         const val BOX_BREATH = 50.0f
         const val BOX_SPACING = 1.0f
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
-        lateinit var boxConfigs: List<BoxConfig>
         val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
+        lateinit var boxConfigs: List<BoxConfig>
         val maxType: Int
             get() = boxConfigs.size - 1
         const val MAX_INDEX = 3
@@ -68,9 +68,6 @@ class Box {
         fun init(assetMgr: AssetManager) {
             boxConfigs = readBoxItems(assetMgr).map{ BoxConfig(it) }
         }
-
-        inline fun bitmap(type: Int, index: Int): Int =
-            boxConfigs[type].bitmaps[index]
 
         private fun readBoxItems(mgr: AssetManager): List<BoxItem> =
             Json.decodeFromStream<List<BoxItem>>(mgr.open(BOX_CONFIG_FILE))
@@ -102,23 +99,28 @@ class Box {
         index = newIndex
     }
 
+    inline val bitmap: Int
+        get() = boxConfigs[type].bitmaps[index]
+
+    inline val color: Color
+        get() = boxConfigs[type].color
+
     fun draw(
         program: SimpleProgram,
-        pos: Vector,
-        color: Color
+        pos: Vector
     ) {
         val displacement = BOX_SPACING + BOX_BREATH / 2.0f
         val startX = pos[0] + displacement
         val p = Vector(startX, pos[1] + displacement)
-        var box = bitmap(type, index)
+        var bmp = bitmap
 
         for (row in 0 until BOX_ROWS) {
             p[0] = startX
             for (col in 0 until BOX_COLS) {
-                if (box and 1 != 0) {
+                if (bmp and 1 != 0) {
                     rect.draw(program, p, null, color, null)
                 }
-                box = box ushr 1
+                bmp = bmp ushr 1
                 p[0] += BOX_SPAN
             }
             p[1] += BOX_SPAN
