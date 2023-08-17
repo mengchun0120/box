@@ -11,6 +11,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
+    private val BUTTON_BREATH = 120f
     private lateinit var program: SimpleProgram
     private lateinit var textSys: TextSystem
     private val viewportSize = Vector(2)
@@ -21,30 +22,34 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private var curBoxRow = 10
     private var curBoxCol = 8
     private lateinit var curBoxPos: Vector
+    private lateinit var buttonGrp: ButtonGroup
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
         initGame()
+        initButtons()
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         resetViewport(width, height)
         resetGamePos()
+        resetButtonPos()
     }
 
     override fun onDrawFrame(p0: GL10?) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
         curBox.draw(program, curBoxPos)
+        buttonGrp.draw(program)
     }
 
-    fun handlePointerDown(event: MotionEvent) {
-        if (curBox.index == Box.MAX_INDEX) {
-            curBox.type = if(curBox.type == Box.maxType) 0 else curBox.type + 1
-            curBox.index = 0
-        } else {
-            curBox.index++
-        }
+    fun handlePointerDown(x: Float, y: Float) {
+        buttonGrp.onPointerDown(x, viewportSize[1] - y)
+    }
+
+    fun handlePointerUp() {
+        Log.i(TAG, "pointer up")
+        buttonGrp.onPointerUp()
     }
 
     fun close() {
@@ -66,6 +71,35 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun initGame() {
         Box.init(context.assets)
         curBox = Box(0, 0)
+    }
+
+    private fun initButtons() {
+        buttonGrp = ButtonGroup(
+            Button(
+                texture = Texture(context.assets, "down.png"),
+                _width = BUTTON_BREATH,
+                _height = BUTTON_BREATH,
+                action = { handleDownButton()  },
+            ),
+            Button(
+                texture = Texture(context.assets, "rotate.png"),
+                _width = BUTTON_BREATH,
+                _height = BUTTON_BREATH,
+                action = { handleRotateButton() },
+            ),
+            Button(
+                texture=Texture(context.assets, "right.png"),
+                _width = BUTTON_BREATH,
+                _height = BUTTON_BREATH,
+                action = { handleRightButton() },
+            ),
+            Button(
+                texture = Texture(context.assets, "left.png"),
+                _width = BUTTON_BREATH,
+                _height = BUTTON_BREATH,
+                action = { handleLeftButton() },
+            ),
+        )
     }
 
     private fun resetViewport(width: Int, height: Int) {
@@ -90,5 +124,38 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             board.pos[0] + 1.0f + curBoxCol * Box.BOX_SPAN,
             board.pos[1] + 1.0f + curBoxRow * Box.BOX_SPAN
         )
+    }
+
+    private fun resetButtonPos() {
+        val downButtonY = 100f
+        val downButtonX = viewportSize[0] - (viewportSize[0] - boardLeft - board.width) / 2.0f
+        val buttonSpacing = BUTTON_BREATH + 10f
+        val rotateButtonY = downButtonY + buttonSpacing
+        val positions = listOf(
+            Vector(downButtonX, downButtonY),
+            Vector(downButtonX, rotateButtonY),
+            Vector(downButtonX + buttonSpacing, rotateButtonY),
+            Vector(downButtonX - buttonSpacing, rotateButtonY),
+        )
+
+        buttonGrp.buttons.forEachIndexed { index, button ->
+            button.pos.assign(positions[index])
+        }
+    }
+
+    private fun handleLeftButton() {
+        Log.i(TAG, "Left")
+    }
+
+    private fun handleRightButton() {
+        Log.i(TAG, "right")
+    }
+
+    private fun handleDownButton() {
+        Log.i(TAG, "down")
+    }
+
+    private fun handleRotateButton() {
+        Log.i(TAG, "rotate")
     }
 }
