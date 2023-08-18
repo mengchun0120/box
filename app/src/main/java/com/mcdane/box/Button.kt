@@ -9,6 +9,7 @@ private val buttonFocusColor = Color(255, 0, 0, 255)
 
 class Button(
     val texture: Texture,
+    val activeTexture: Texture,
     x: Float = 0f,
     y: Float = 0f,
     _width: Float = 0f,
@@ -31,19 +32,18 @@ class Button(
         abs(y - pos[1]) <= halfHeight
 
     fun draw(program:SimpleProgram) {
+        val tex = if (hasFocus) activeTexture else texture
         rect.draw(
             program,
             pos,
             null,
             null,
             null,
-            texture.id,
-            if (hasFocus) buttonFocusColor else null
+            tex.id,
         )
     }
 
     fun onPointerDown(x: Float, y: Float): Boolean {
-        Log.i(TAG, "pos: $pos hw: $halfWidth hh: $halfHeight")
         return if (contains(x, y)) {
             hasFocus = true
             action?.invoke()

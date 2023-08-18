@@ -22,7 +22,6 @@ class ButtonGroup {
     }
 
     fun onPointerDown(x: Float, y: Float): Boolean {
-        Log.i(TAG, "down $x, $y")
         var focusIndex = -1
         for ((index, button) in buttons.withIndex()) {
             if (button.onPointerDown(x, y)) {

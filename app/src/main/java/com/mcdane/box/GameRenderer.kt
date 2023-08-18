@@ -48,7 +48,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     fun handlePointerUp() {
-        Log.i(TAG, "pointer up")
         buttonGrp.onPointerUp()
     }
 
@@ -74,32 +73,26 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initButtons() {
-        buttonGrp = ButtonGroup(
-            Button(
-                texture = Texture(context.assets, "down.png"),
-                _width = BUTTON_BREATH,
-                _height = BUTTON_BREATH,
-                action = { handleDownButton()  },
-            ),
-            Button(
-                texture = Texture(context.assets, "rotate.png"),
-                _width = BUTTON_BREATH,
-                _height = BUTTON_BREATH,
-                action = { handleRotateButton() },
-            ),
-            Button(
-                texture=Texture(context.assets, "right.png"),
-                _width = BUTTON_BREATH,
-                _height = BUTTON_BREATH,
-                action = { handleRightButton() },
-            ),
-            Button(
-                texture = Texture(context.assets, "left.png"),
-                _width = BUTTON_BREATH,
-                _height = BUTTON_BREATH,
-                action = { handleLeftButton() },
-            ),
+        val names = listOf("down", "rotate", "right", "left")
+        val actions = listOf(
+            { handleDownButton() },
+            { handleRotateButton() },
+            { handleRightButton() },
+            { handleLeftButton() }
         )
+
+        buttonGrp = ButtonGroup()
+        for (i in names.indices) {
+            buttonGrp.buttons.add(
+                Button(
+                    Texture(context.assets, "${names[i]}.png"),
+                    Texture(context.assets, "${names[i]}_active.png"),
+                    _width = BUTTON_BREATH,
+                    _height = BUTTON_BREATH,
+                    action = actions[i],
+                )
+            )
+        }
     }
 
     private fun resetViewport(width: Int, height: Int) {
@@ -127,7 +120,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun resetButtonPos() {
-        val downButtonY = 100f
+        val downButtonY = 400f
         val downButtonX = viewportSize[0] - (viewportSize[0] - boardLeft - board.width) / 2.0f
         val buttonSpacing = BUTTON_BREATH + 10f
         val rotateButtonY = downButtonY + buttonSpacing
