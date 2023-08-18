@@ -61,9 +61,12 @@ class Box {
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
         val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
         lateinit var boxConfigs: List<BoxConfig>
+        val typeCount: Int
+            get() = boxConfigs.size
         val maxType: Int
             get() = boxConfigs.size - 1
-        const val MAX_INDEX = 3
+        const val INDEX_COUNT = 4
+        const val MAX_INDEX = INDEX_COUNT - 1
 
         fun init(assetMgr: AssetManager) {
             boxConfigs = readBoxItems(assetMgr).map{ BoxConfig(it) }
@@ -104,6 +107,11 @@ class Box {
 
     inline val color: Color
         get() = boxConfigs[type].color
+
+    fun assign(other: Box) {
+        type = other.type
+        index = other.index
+    }
 
     fun draw(
         program: SimpleProgram,

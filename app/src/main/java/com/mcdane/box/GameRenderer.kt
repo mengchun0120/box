@@ -23,6 +23,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private var curBoxCol = 8
     private lateinit var curBoxPos: Vector
     private lateinit var buttonGrp: ButtonGroup
+    private lateinit var preview: Preview
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -34,6 +35,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         resetViewport(width, height)
         resetGamePos()
         resetButtonPos()
+        resetPreviewPos()
     }
 
     override fun onDrawFrame(p0: GL10?) {
@@ -41,6 +43,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         board.draw(program)
         curBox.draw(program, curBoxPos)
         buttonGrp.draw(program)
+        preview.draw(program)
     }
 
     fun handlePointerDown(x: Float, y: Float) {
@@ -70,6 +73,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun initGame() {
         Box.init(context.assets)
         curBox = Box(0, 0)
+        preview = Preview()
     }
 
     private fun initButtons() {
@@ -121,7 +125,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     private fun resetButtonPos() {
         val downButtonY = 400f
-        val downButtonX = viewportSize[0] - (viewportSize[0] - boardLeft - board.width) / 2.0f
+        val downButtonX = (viewportSize[0] + boardLeft + board.width) / 2.0f
         val buttonSpacing = BUTTON_BREATH + 10f
         val rotateButtonY = downButtonY + buttonSpacing
         val positions = listOf(
@@ -134,6 +138,14 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         buttonGrp.buttons.forEachIndexed { index, button ->
             button.pos.assign(positions[index])
         }
+    }
+
+    private fun resetPreviewPos() {
+        val spacingFromTop = 200f
+        preview.resetPos(
+            (viewportSize[0] + boardLeft + board.width) / 2.0f,
+            viewportSize[1] - spacingFromTop
+        )
     }
 
     private fun handleLeftButton() {
