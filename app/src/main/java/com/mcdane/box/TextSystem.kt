@@ -3,7 +3,7 @@ package com.mcdane.box
 import android.content.res.AssetManager
 import java.io.File
 
-private val SCALE_FACTORS = floatArrayOf(1.0f, 0.75f, 0.5f, 0.36f)
+private val SCALE_FACTORS = floatArrayOf(2.0f, 1.75f, 1f, 0.5f)
 
 enum class TextSize(val index: Int) {
     BIG(0),

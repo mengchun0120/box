@@ -24,11 +24,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var curBoxPos: Vector
     private lateinit var buttonGrp: ButtonGroup
     private lateinit var preview: Preview
+    private lateinit var score: Score
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
         initGame()
-        initButtons()
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
@@ -36,14 +36,16 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         resetGamePos()
         resetButtonPos()
         resetPreviewPos()
+        resetScorePos()
     }
 
     override fun onDrawFrame(p0: GL10?) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
         curBox.draw(program, curBoxPos)
-        buttonGrp.draw(program)
+        score.draw(program, textSys)
         preview.draw(program)
+        buttonGrp.draw(program)
     }
 
     fun handlePointerDown(x: Float, y: Float) {
@@ -74,6 +76,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         Box.init(context.assets)
         curBox = Box(0, 0)
         preview = Preview()
+        initScore()
+        initButtons()
     }
 
     private fun initButtons() {
@@ -97,6 +101,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
                 )
             )
         }
+    }
+
+    private fun initScore() {
+        val maxScoreWidth = 300f
+        score = Score(textSys, 1000L)
     }
 
     private fun resetViewport(width: Int, height: Int) {
@@ -141,10 +150,19 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun resetPreviewPos() {
-        val spacingFromTop = 200f
+        val spacingFromTop = 400f
         preview.resetPos(
             (viewportSize[0] + boardLeft + board.width) / 2.0f,
             viewportSize[1] - spacingFromTop
+        )
+    }
+
+    private fun resetScorePos() {
+        val spacingFromTop = 200f
+        score.resetPos(
+            (viewportSize[0] + boardLeft + board.width) / 2f,
+            viewportSize[1] - spacingFromTop,
+            textSys
         )
     }
 
