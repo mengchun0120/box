@@ -9,6 +9,11 @@ import kotlinx.serialization.json.decodeFromStream
 data class BoxItem(val bitmaps: List<List<String>>, val color: List<Int>)
 
 class BoxConfig(val bitmaps: List<Int>, val color: Color) {
+    val firstRows = List<Int>(bitmaps.size) { firstRow(bitmaps[it]) }
+    val lastRows = List<Int>(bitmaps.size) { lastRow(bitmaps[it]) }
+    val firstCols = List<Int>(bitmaps.size) { firstCol(bitmaps[it]) }
+    val lastCols = List<Int>(bitmaps.size) { lastCol(bitmaps[it]) }
+
     constructor(item: BoxItem):
         this(
             item.bitmaps.map{ transformBitmap(it) },
@@ -16,7 +21,9 @@ class BoxConfig(val bitmaps: List<Int>, val color: Color) {
         )
 
     companion object {
-        private fun transformRow(rowStr: String): Int {
+        val colTestMask = initColTestMask()
+
+        fun transformRow(rowStr: String): Int {
             if (rowStr.length != Box.BOX_COLS) {
                 throw IllegalArgumentException("Invalid row size: $rowStr")
             }
@@ -32,7 +39,7 @@ class BoxConfig(val bitmaps: List<Int>, val color: Color) {
             return row
         }
 
-        private fun transformBitmap(bitmap: List<String>): Int {
+        fun transformBitmap(bitmap: List<String>): Int {
             if (bitmap.size != Box.BOX_ROWS) {
                 throw IllegalArgumentException("Invalid bitmap size (${bitmap.size})")
             }
@@ -44,6 +51,52 @@ class BoxConfig(val bitmaps: List<Int>, val color: Color) {
             }
 
             return retval
+        }
+
+        fun firstRow(bmp: Int): Int {
+            var b = bmp
+            for (i in 0 until Box.BOX_ROWS) {
+                if ((b and 0xf) != 0) return i
+                b = b shr Box.BOX_COLS
+            }
+            return -1
+        }
+
+        fun lastRow(bmp: Int): Int {
+            var mask = 0xf shl ((Box.BOX_ROWS - 1) * Box.BOX_COLS)
+            for (i in (Box.BOX_ROWS - 1) downTo 0) {
+                if ((bmp and mask ) != 0) return i
+                mask = mask shr Box.BOX_COLS
+            }
+            return -1
+        }
+
+        fun firstCol(bmp: Int): Int {
+            var mask = colTestMask
+            for (i in 0 until Box.BOX_COLS) {
+                if ((bmp and mask) != 0) return i
+                mask = mask shl 1
+            }
+            return -1
+        }
+
+        fun lastCol(bmp: Int): Int {
+            var mask = colTestMask shl (Box.BOX_COLS - 1)
+            for (i in (Box.BOX_COLS - 1) downTo 0) {
+                if ((bmp and mask) != 0) return i
+                mask = mask shr 1
+            }
+            return -1
+        }
+
+        fun initColTestMask(): Int {
+            var mask = 1
+            var ret = 0
+            for (i in 0 until Box.BOX_ROWS) {
+                ret = ret or mask
+                mask = mask shl Box.BOX_COLS
+            }
+            return ret
         }
     }
 
@@ -107,6 +160,18 @@ class Box {
 
     inline val color: Color
         get() = boxConfigs[type].color
+
+    inline val firstRow: Int
+        get() = boxConfigs[type].firstRows[index]
+
+    inline val lastRow: Int
+        get() = boxConfigs[type].lastRows[index]
+
+    inline val firstCol: Int
+        get() = boxConfigs[type].firstCols[index]
+
+    inline val lastCol: Int
+        get() = boxConfigs[type].lastCols[index]
 
     fun assign(other: Box) {
         type = other.type
