@@ -92,7 +92,6 @@ class Color {
 
     override fun equals(other: Any?): Boolean {
         val o: Color = other as? Color ?: return false
-
         return o.red == red && o.green == green && o.blue == blue && o.alpha == alpha
     }
 

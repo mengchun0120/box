@@ -29,7 +29,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.02625"
-     inkscape:cx="400.48721"
+     inkscape:cx="400.97442"
      inkscape:cy="400"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -47,7 +47,10 @@
      stroke="#323232"
      stroke-width="2"
      id="path2"
-     style="stroke:#323278;stroke-opacity:1;fill:#4fd3ff;fill-opacity:1" />
+     style="stroke:#323278;stroke-opacity:1;fill:#4fd3ff;fill-opacity:1"
+     inkscape:export-filename=".\left.png"
+     inkscape:export-xdpi="17.280001"
+     inkscape:export-ydpi="17.280001" />
   <path
      d="M8 12L16 12"
      stroke="#323232"

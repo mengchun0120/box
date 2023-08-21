@@ -3,12 +3,9 @@ package com.mcdane.box
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.Log
-import android.view.MotionEvent
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30 as GL
-import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private val BUTTON_BREATH = 120f
@@ -16,7 +13,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var textSys: TextSystem
     private val viewportSize = Vector(2)
     private val viewportOrigin = Vector(2)
-    private val board = Board()
+    private lateinit var board: Board
     private val boardLeft = 20.0f
     private lateinit var curBox: Box
     private var curBoxRow = 10
@@ -73,11 +70,18 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initGame() {
+        initBoard()
         Box.init(context.assets)
         curBox = Box(0, 0)
         preview = Preview()
         initScore()
         initButtons()
+    }
+
+    private fun initBoard() {
+        val rowCount = 32
+        val colCount = 12
+        board = Board(rowCount, colCount)
     }
 
     private fun initButtons() {
