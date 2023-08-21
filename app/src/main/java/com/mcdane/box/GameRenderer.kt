@@ -70,8 +70,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initGame() {
+        Box.init(context.assets, "box_bitmaps.json", "box_colors.json")
         initBoard()
-        Box.init(context.assets)
         curBox = Box(0, 0)
         preview = Preview()
         initScore()

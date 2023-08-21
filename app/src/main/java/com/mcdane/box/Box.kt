@@ -38,6 +38,19 @@ class Box {
             palette = readPalette(assetMgr, paletteFile)
         }
 
+        fun init(_bitmaps: List<List<Int>>, _palette: List<Color>) {
+            if (_bitmaps.any{ it.size !=  INDEX_COUNT}) {
+                throw IllegalArgumentException("Invalid _bitmaps")
+            }
+
+            if (_bitmaps.size != _palette.size) {
+                throw IllegalArgumentException("Size of _bitmaps doesn't match _palette")
+            }
+
+            bitmaps = _bitmaps
+            palette = _palette
+        }
+
         fun bitmap(type: Int, index: Int): Int = bitmaps[type][index]
 
         fun color(type: Int): Color = palette[type]
@@ -62,7 +75,7 @@ class Box {
             }
 
         fun transformRow(rowStr: String): Int {
-            if (rowStr.length != Box.BOX_COLS) {
+            if (rowStr.length != BOX_COLS) {
                 throw IllegalArgumentException("Invalid row size: $rowStr")
             }
 
@@ -78,7 +91,7 @@ class Box {
         }
 
         fun toBitmap(frame: List<String>): Int {
-            if (frame.size != Box.BOX_ROWS) {
+            if (frame.size != BOX_ROWS) {
                 throw IllegalArgumentException("Invalid bitmap size (${frame.size})")
             }
 
@@ -89,6 +102,10 @@ class Box {
             }
 
             return retval
+        }
+
+        fun validateBitmaps(_bitmaps: List<List<Int>>) {
+
         }
 
         fun firstRow(bmp: Int): Int {
@@ -207,5 +224,23 @@ class Box {
             }
             p[1] += BOX_SPAN
         }
+    }
+
+    fun canBePlaced(board: Board, rowIdx: Int, colIdx: Int): Boolean {
+        val bmp = bitmap
+        var mask = 0x01
+
+        for (r in rowIdx until (rowIdx + BOX_ROWS)) {
+            for (c in colIdx until (colIdx + BOX_COLS)) {
+                if (board.contains(r, c)) {
+                    if ((bmp and mask) != 0 && board[r, c] != null) return false
+                } else {
+                    if ((bmp and mask) != 0) return false
+                }
+                mask = mask shl 1
+            }
+        }
+
+        return true
     }
 }

@@ -5,9 +5,16 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 
 class Board {
+    companion object {
+        private val boudaryColor = Color(0, 0, 255, 255)
+        const val HIDDEN_ROWS = Box.BOX_ROWS
+        const val MIN_VISIBLE_ROWS = Box.BOX_ROWS
+        const val MIN_ROWS = MIN_VISIBLE_ROWS + HIDDEN_ROWS
+        const val MIN_COLS = Box.BOX_COLS
+    }
+
     private val board: Array<Array<Color?>>
     private val boundary: Rectangle
-    private val boudaryColor = Color(0, 0, 255, 255)
     private val center = Vector(2)
     private val boxStartPos = Vector(2)
 
@@ -15,6 +22,8 @@ class Board {
         get() = board.size
     val colCount: Int
         get() = board[0].size
+    val visibleRowCount: Int
+        get() = rowCount - Box.BOX_ROWS
     val width: Float
         get() = boundary.width
     val height: Float
@@ -28,8 +37,16 @@ class Board {
             boxStartPos[1] = value[1] + 1.0f + Box.BOX_SPACING + Box.BOX_BREATH / 2.0f
         }
 
-    constructor(_rowCount: Int, _colCount: Int) {
-        board = Array<Array<Color?>>(_rowCount) {
+    constructor(_visibleRowCount: Int, _colCount: Int) {
+        if (_visibleRowCount < MIN_VISIBLE_ROWS) {
+            throw IllegalArgumentException("Invalid _visibleRowCount ($_visibleRowCount)")
+        }
+
+        if (_colCount < MIN_COLS) {
+            throw IllegalArgumentException("Invalid _colCount ($_colCount)")
+        }
+
+        board = Array<Array<Color?>>(_visibleRowCount + Box.BOX_ROWS) {
             Array<Color?>(_colCount){ null}
         }
         boundary = createRect()
@@ -60,9 +77,14 @@ class Board {
             row.joinToString(prefix="[", postfix="]")
         }
 
+    fun contains(rowIdx: Int, colIdx: Int): Boolean {
+        return (rowIdx in 0 until rowCount) &&
+               (colIdx in 0 until colCount)
+    }
+
     private fun validate(content: List<List<Int?>>): Boolean =
-        content.size >= Box.BOX_ROWS &&
-        content[0].size >= Box.BOX_COLS &&
+        content.size >= MIN_ROWS &&
+        content[0].size >= MIN_COLS &&
         content.all{ it.size == content[0].size }
 
     private fun createBoard(content: List<List<Int?>>, palette: List<Color>): Array<Array<Color?>> =
@@ -75,15 +97,15 @@ class Board {
     private fun createRect(): Rectangle =
         Rectangle(
             colCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
-            rowCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
+            visibleRowCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
             false
         )
 
     private fun drawBoxes(program: SimpleProgram) {
         val p = boxStartPos.copy()
-        for (row in board) {
+        for (rowIdx in 0 until visibleRowCount) {
             p[0] = boxStartPos[0]
-            for (color in row) {
+            for (color in board[rowIdx]) {
                 color?.let {
                     Box.rect.draw(program, p, null, color, null)
                 }

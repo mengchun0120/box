@@ -91,4 +91,30 @@ class BoxConfigTest {
         assertTrue(Box.lastCol(0x8007) == 3)
         assertTrue(Box.lastCol(0) == -1)
     }
+
+    @Test
+    fun canBePlacedWorks() {
+        val bitmaps = listOf(listOf(0x0027, 0x0027, 0x0027, 0x0027))
+        val palette = listOf(Color(255, 0, 0, 255))
+        Box.init(bitmaps, palette)
+
+        val boardContent = listOf(
+            listOf<Int?>(null, 0, 0, null, null, null, null, null),
+            listOf<Int?>(null, null, 0, 0, null, null, null, null),
+            listOf<Int?>(0, 0, 0, null, null, null, null, null),
+            listOf<Int?>(null, null, 0, 0, null, null, null, null),
+            listOf<Int?>(null, 0, null, null, null, null, null, null),
+            listOf<Int?>(null, null, null, null, null, null, null, null),
+            listOf<Int?>(null, null, null, null, null, null, null, null),
+            listOf<Int?>(null, null, null, null, null, null, null, null),
+        )
+        val board = Board(boardContent, palette)
+
+        val box = Box(0, 0)
+        /*assertTrue(box.canBePlaced(board, 0, 3))
+        assertTrue(box.canBePlaced(board, 2, 3))
+        assertFalse(box.canBePlaced(board, -1, 0))*/
+        assertFalse(box.canBePlaced(board,0, 6))
+        assertFalse(box.canBePlaced(board, 3, 0))
+    }
 }
