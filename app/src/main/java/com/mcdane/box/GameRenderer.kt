@@ -5,7 +5,15 @@ import android.opengl.GLSurfaceView
 import android.util.Log
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.random.Random
 import android.opengl.GLES30 as GL
+
+enum class GameState {
+    RUNNING,
+    PAUSED,
+    FLASHING,
+    STOPPED,
+}
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private val BUTTON_BREATH = 120f
@@ -18,10 +26,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var curBox: Box
     private var curBoxRow = 10
     private var curBoxCol = 8
-    private lateinit var curBoxPos: Vector
-    private lateinit var buttonGrp: ButtonGroup
+    private val curBoxPos = Vector(2)
+    private val buttonGrp = ButtonGroup()
     private lateinit var preview: Preview
     private lateinit var score: Score
+    private var state = GameState.STOPPED
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -39,7 +48,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     override fun onDrawFrame(p0: GL10?) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
-        curBox.draw(program, curBoxPos)
+        curBox.draw(program, board, curBoxRow, curBoxCol)
         score.draw(program, textSys)
         preview.draw(program)
         buttonGrp.draw(program)
@@ -72,16 +81,25 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun initGame() {
         Box.init(context.assets, "box_bitmaps.json", "box_colors.json")
         initBoard()
-        curBox = Box(0, 0)
-        preview = Preview()
+        initCurBox()
+        initPreview()
         initScore()
         initButtons()
+        state = GameState.RUNNING
     }
 
     private fun initBoard() {
         val rowCount = 32
         val colCount = 12
         board = Board(rowCount, colCount)
+    }
+
+    private fun initCurBox() {
+        curBox = Box()
+        resetCurBox(
+            Random.nextInt(0, Box.typeCount),
+            Random.nextInt(0, Box.INDEX_COUNT)
+        )
     }
 
     private fun initButtons() {
@@ -93,7 +111,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             { handleLeftButton() }
         )
 
-        buttonGrp = ButtonGroup()
         for (i in names.indices) {
             buttonGrp.buttons.add(
                 Button(
@@ -105,6 +122,10 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
                 )
             )
         }
+    }
+
+    private fun initPreview() {
+        preview = Preview()
     }
 
     private fun initScore() {
@@ -130,7 +151,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             (viewportSize[1] - board.height) / 2.0f
         )
 
-        curBoxPos = Vector(
+        curBoxPos.assign(
             board.pos[0] + 1.0f + curBoxCol * Box.BOX_SPAN,
             board.pos[1] + 1.0f + curBoxRow * Box.BOX_SPAN
         )
@@ -184,5 +205,31 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     private fun handleRotateButton() {
         Log.i(TAG, "rotate")
+    }
+
+    private fun resetCurBox(newType: Int, newIndex: Int) {
+        curBox.type = newType
+        curBox.index = newIndex
+        resetCurBoxCol()
+        resetCurBoxRow()
+        Log.i(TAG, "curBox: ${curBox.type} ${curBox.index} $curBoxRow $curBoxCol")
+    }
+
+    private fun resetCurBoxCol() {
+        curBoxCol = board.centerColIdx - (curBox.cols - 1) / 2
+    }
+
+    private fun resetCurBoxRow() {
+        val startRow = board.visibleRowCount - curBox.rows
+
+        for (rowIdx in startRow until board.rowCount) {
+            if (curBox.canBePlaced(board, rowIdx, curBoxCol)) {
+                curBoxRow = rowIdx
+                return
+            }
+        }
+
+        curBoxRow = board.rowCount
+        state = GameState.STOPPED
     }
 }

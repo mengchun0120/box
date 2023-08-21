@@ -199,6 +199,12 @@ class Box {
     val lastCol: Int
         get() = lastCol(bitmap)
 
+    val rows: Int
+        get() = lastRow - firstRow + 1
+
+    val cols: Int
+        get() = lastCol - firstCol + 1
+
     fun assign(other: Box) {
         type = other.type
         index = other.index
@@ -206,16 +212,36 @@ class Box {
 
     fun draw(
         program: SimpleProgram,
-        pos: Vector
+        board: Board,
+        rowIdx: Int,
+        colIdx: Int
     ) {
-        val displacement = BOX_SPACING + BOX_BREATH / 2.0f
+        val startPos = board.boxPos(rowIdx, colIdx)
+        val p = startPos.copy()
+        var bmp = bitmap
+
+        for (row in rowIdx until (rowIdx + BOX_ROWS)) {
+            p[0] = startPos[0]
+            for (col in colIdx  until (colIdx + BOX_COLS)) {
+                if (board.contains(row, col) && (bmp and 1 != 0)) {
+                    rect.draw(program, p, null, color, null)
+                }
+                bmp = bmp ushr 1
+                p[0] += BOX_SPAN
+            }
+            p[1] += BOX_SPAN
+        }
+    }
+
+    fun draw(program: SimpleProgram, pos: Vector) {
+        val displacement = BOX_SPACING + BOX_BREATH / 2f
         val startX = pos[0] + displacement
         val p = Vector(startX, pos[1] + displacement)
         var bmp = bitmap
 
-        for (row in 0 until BOX_ROWS) {
+        for (row in 0 until  BOX_ROWS) {
             p[0] = startX
-            for (col in 0 until BOX_COLS) {
+            for (col in 0  until BOX_COLS) {
                 if (bmp and 1 != 0) {
                     rect.draw(program, p, null, color, null)
                 }

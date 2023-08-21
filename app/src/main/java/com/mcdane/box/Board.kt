@@ -20,14 +20,22 @@ class Board {
 
     val rowCount: Int
         get() = board.size
+
     val colCount: Int
         get() = board[0].size
+
+    val centerColIdx: Int
+        get() = (colCount - 1) / 2
+
     val visibleRowCount: Int
         get() = rowCount - Box.BOX_ROWS
+
     val width: Float
         get() = boundary.width
+
     val height: Float
         get() = boundary.height
+
     var pos = Vector(2)
         set(value) {
             field = value
@@ -81,6 +89,12 @@ class Board {
         return (rowIdx in 0 until rowCount) &&
                (colIdx in 0 until colCount)
     }
+
+    fun boxPos(rowIdx: Int, colIdx: Int): Vector =
+        Vector(
+            boxStartPos[0] + colIdx * Box.BOX_SPAN,
+            boxStartPos[1] + rowIdx * Box.BOX_SPAN
+        )
 
     private fun validate(content: List<List<Int?>>): Boolean =
         content.size >= MIN_ROWS &&
