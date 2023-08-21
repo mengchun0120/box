@@ -269,4 +269,18 @@ class Box {
 
         return true
     }
+
+    fun placeInBoard(board: Board, rowIdx: Int, colIdx: Int) {
+        val bmp = bitmap
+        var mask = 0x01
+
+        for (r in rowIdx until (rowIdx + BOX_ROWS)) {
+            for (c in colIdx until (colIdx + BOX_COLS)) {
+                if (board.contains(r, c)) {
+                    if ((bmp and mask) != 0) board[r, c] = color
+                }
+                mask = mask shl 1
+            }
+        }
+    }
 }

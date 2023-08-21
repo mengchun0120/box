@@ -3,6 +3,9 @@ package com.mcdane.box
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.Log
+import java.util.Timer
+import java.util.TimerTask
+import java.util.concurrent.locks.Lock
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -15,7 +18,7 @@ enum class GameState {
     STOPPED,
 }
 
-class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
+class GameRenderer(private val context: Context): GLSurfaceView.Renderer, TimerTask() {
     private val BUTTON_BREATH = 120f
     private lateinit var program: SimpleProgram
     private lateinit var textSys: TextSystem
@@ -31,13 +34,15 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var preview: Preview
     private lateinit var score: Score
     private var state = GameState.STOPPED
+    private lateinit var timer: Timer
+    private val lock = Any()
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
         initGame()
     }
 
-    override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
+    override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int): Unit = synchronized(lock) {
         resetViewport(width, height)
         resetGamePos()
         resetButtonPos()
@@ -45,7 +50,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         resetScorePos()
     }
 
-    override fun onDrawFrame(p0: GL10?) {
+    override fun onDrawFrame(p0: GL10?): Unit = synchronized(lock) {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
         curBox.draw(program, board, curBoxRow, curBoxCol)
@@ -54,11 +59,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         buttonGrp.draw(program)
     }
 
-    fun handlePointerDown(x: Float, y: Float) {
+    fun handlePointerDown(x: Float, y: Float): Unit = synchronized(lock) {
         buttonGrp.onPointerDown(x, viewportSize[1] - y)
     }
 
-    fun handlePointerUp() {
+    fun handlePointerUp(): Unit = synchronized(lock) {
         buttonGrp.onPointerUp()
     }
 
@@ -79,6 +84,9 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initGame() {
+        val BOX_DOWN_PERIOD = 1000L
+        val BOX_DOWN_DELAY = 1000L
+
         Box.init(context.assets, "box_bitmaps.json", "box_colors.json")
         initBoard()
         initCurBox()
@@ -86,6 +94,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         initScore()
         initButtons()
         state = GameState.RUNNING
+        timer = Timer()
+        timer.scheduleAtFixedRate(this, BOX_DOWN_DELAY, BOX_DOWN_PERIOD)
     }
 
     private fun initBoard() {
@@ -231,5 +241,15 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
         curBoxRow = board.rowCount
         state = GameState.STOPPED
+    }
+
+    override fun run(): Unit = synchronized(lock) {
+        if (state != GameState.RUNNING) return
+
+        if (curBox.canBePlaced(board, curBoxRow - 1, curBoxCol)) {
+            --curBoxRow
+        } else {
+            curBox.placeInBoard(board, curBoxRow, curBoxCol)
+        }
     }
 }
