@@ -185,7 +185,7 @@ class Box {
         get() = bitmaps[type][index]
 
     val color: Color
-        get() = palette[index]
+        get() = palette[type]
 
     val firstRow: Int
         get() = firstRow(bitmap)
@@ -223,7 +223,7 @@ class Box {
         for (row in rowIdx until (rowIdx + BOX_ROWS)) {
             p[0] = startPos[0]
             for (col in colIdx  until (colIdx + BOX_COLS)) {
-                if (board.contains(row, col) && (bmp and 1 != 0)) {
+                if (board.visible(row, col) && (bmp and 1 != 0)) {
                     rect.draw(program, p, null, color, null)
                 }
                 bmp = bmp ushr 1

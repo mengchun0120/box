@@ -85,10 +85,13 @@ class Board {
             row.joinToString(prefix="[", postfix="]")
         }
 
-    fun contains(rowIdx: Int, colIdx: Int): Boolean {
-        return (rowIdx in 0 until rowCount) &&
-               (colIdx in 0 until colCount)
-    }
+    fun contains(rowIdx: Int, colIdx: Int): Boolean =
+        (rowIdx in 0 until rowCount) &&
+        (colIdx in 0 until colCount)
+
+    fun visible(rowIdx: Int, colIdx: Int): Boolean =
+        (rowIdx in 0 until visibleRowCount) &&
+        (colIdx in 0 until colCount)
 
     fun boxPos(rowIdx: Int, colIdx: Int): Vector =
         Vector(

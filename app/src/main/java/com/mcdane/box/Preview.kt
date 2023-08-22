@@ -32,11 +32,13 @@ class Preview {
 
     fun randomize() {
         box.type = Random.nextInt(Box.typeCount)
-        box.type = Random.nextInt(Box.INDEX_COUNT)
+        box.index = Random.nextInt(Box.INDEX_COUNT)
     }
 
-    fun draw(program: SimpleProgram) {
+    fun draw(program: SimpleProgram, drawBox: Boolean) {
         rect.draw(program, pos, null, null, borderColor)
-        box.draw(program, boxPos)
+        if (drawBox) {
+            box.draw(program, boxPos)
+        }
     }
 }

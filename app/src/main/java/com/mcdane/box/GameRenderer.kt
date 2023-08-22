@@ -21,9 +21,9 @@ enum class GameState {
 
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     companion object {
-        private val BUTTON_BREATH = 120f
-        private val QUEUE_CAPACITY = 10
-
+        private const val BUTTON_BREATH = 120f
+        private const val QUEUE_CAPACITY = 10
+        private const val DROP_DOWN_INTERVAL = 1000
     }
 
     private lateinit var program: SimpleProgram
@@ -41,7 +41,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var score: Score
     private var state = GameState.STOPPED
     private var queue = EventQueue(QUEUE_CAPACITY)
-    private var lastTime: Long = 0L
     private var lastDownTime: Long = 0L
     private var lastFlashTime: Long = 0L
 
@@ -75,9 +74,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun draw() {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
-        if (state == GameState.RUNNING) curBox.draw(program, board, curBoxRow, curBoxCol)
+        if (state == GameState.RUNNING) {
+            curBox.draw(program, board, curBoxRow, curBoxCol)
+        }
         score.draw(program, textSys)
-        preview.draw(program)
+        preview.draw(program, state == GameState.RUNNING)
         buttonGrp.draw(program)
     }
 
@@ -94,9 +95,19 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
 
     private fun update() {
         val curTime = SystemClock.uptimeMillis()
-        val delta = curTime - lastTime
-        Log.i(TAG, "$curTime $delta")
-        lastTime = curTime
+
+        when (state) {
+            GameState.RUNNING -> {
+                dropDownCurBox(curTime)
+            }
+            GameState.FLASHING -> {
+
+            }
+            else -> {
+
+            }
+        }
+
     }
 
     private fun handlePointerDown(x: Float, y: Float) {
@@ -131,9 +142,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         initScore()
         initButtons()
         state = GameState.RUNNING
-        lastTime = SystemClock.uptimeMillis()
-        lastDownTime = lastTime
-        lastFlashTime = lastTime
+        lastDownTime = SystemClock.uptimeMillis()
+        lastFlashTime = lastDownTime
     }
 
     private fun initBoard() {
@@ -260,7 +270,6 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         curBox.index = newIndex
         resetCurBoxCol()
         resetCurBoxRow()
-        Log.i(TAG, "curBox: ${curBox.type} ${curBox.index} $curBoxRow $curBoxCol")
     }
 
     private fun resetCurBoxCol() {
@@ -270,14 +279,36 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun resetCurBoxRow() {
         val startRow = board.visibleRowCount - curBox.rows
 
-        for (rowIdx in startRow until board.rowCount) {
+        for (rowIdx in startRow until board.visibleRowCount) {
             if (curBox.canBePlaced(board, rowIdx, curBoxCol)) {
                 curBoxRow = rowIdx
                 return
             }
         }
 
-        curBoxRow = board.rowCount
         state = GameState.STOPPED
+    }
+
+    private fun dropDownCurBox(curTime: Long) {
+        if (curTime - lastDownTime < DROP_DOWN_INTERVAL) {
+            return
+        }
+
+        if (curBox.canBePlaced(board, curBoxRow - 1, curBoxCol)) {
+            --curBoxRow
+        } else {
+            curBox.placeInBoard(board, curBoxRow, curBoxCol)
+            checkForFullLines()
+            resetCurBox(preview.box.type, preview.box.index)
+            if (state != GameState.STOPPED) {
+                preview.randomize()
+            }
+        }
+
+        lastDownTime = curTime
+    }
+
+    private fun checkForFullLines() {
+
     }
 }
