@@ -104,10 +104,6 @@ class Box {
             return retval
         }
 
-        fun validateBitmaps(_bitmaps: List<List<Int>>) {
-
-        }
-
         fun firstRow(bmp: Int): Int {
             var b = bmp
             for (i in 0 until Box.BOX_ROWS) {
@@ -273,14 +269,26 @@ class Box {
     fun placeInBoard(board: Board, rowIdx: Int, colIdx: Int) {
         val bmp = bitmap
         var mask = 0x01
+        var maxRow = -1
 
         for (r in rowIdx until (rowIdx + BOX_ROWS)) {
             for (c in colIdx until (colIdx + BOX_COLS)) {
                 if (board.contains(r, c)) {
-                    if ((bmp and mask) != 0) board[r, c] = color
+                    if ((bmp and mask) != 0) {
+                        board[r, c] = color
+                        if (r > maxRow) maxRow = r
+                    }
                 }
                 mask = mask shl 1
             }
         }
+
+        if (maxRow >= 0) {
+            board.updateTopRow(maxRow)
+        }
+    }
+
+    fun rotate() {
+        index = (index + 1) % INDEX_COUNT
     }
 }

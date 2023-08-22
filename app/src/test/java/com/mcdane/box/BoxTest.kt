@@ -111,9 +111,9 @@ class BoxTest {
         val board = Board(boardContent, palette)
 
         val box = Box(0, 0)
-        /*assertTrue(box.canBePlaced(board, 0, 3))
+        assertTrue(box.canBePlaced(board, 0, 3))
         assertTrue(box.canBePlaced(board, 2, 3))
-        assertFalse(box.canBePlaced(board, -1, 0))*/
+        assertFalse(box.canBePlaced(board, -1, 0))
         assertFalse(box.canBePlaced(board,0, 6))
         assertFalse(box.canBePlaced(board, 3, 0))
     }

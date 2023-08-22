@@ -14,9 +14,13 @@ class Board {
     }
 
     private val board: Array<Array<Color?>>
+    private val visible: BooleanArray
     private val boundary: Rectangle
     private val center = Vector(2)
     private val boxStartPos = Vector(2)
+
+    var topRow: Int = -1
+        private set
 
     val rowCount: Int
         get() = board.size
@@ -57,12 +61,14 @@ class Board {
         board = Array<Array<Color?>>(_visibleRowCount + Box.BOX_ROWS) {
             Array<Color?>(_colCount){ null}
         }
+        visible = createVisibleArray()
         boundary = createRect()
     }
 
     constructor(content: List<List<Int?>>, palette: List<Color>) {
         if (!validate(content)) throw IllegalArgumentException("content is invalid")
         board = createBoard(content, palette)
+        visible = createVisibleArray()
         boundary = createRect()
     }
 
@@ -99,6 +105,51 @@ class Board {
             boxStartPos[1] + rowIdx * Box.BOX_SPAN
         )
 
+    fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
+
+    fun setVisibleRow(rowIdx: Int, _visible: Boolean) {
+        visible[rowIdx] = _visible
+    }
+
+    fun removeRows(rows: IntArray, count: Int) {
+        for (i in 0 until count) {
+            copyRows(
+                rows[i] + 1,
+                if (i < count - 1) rows[i + 1] - 1 else topRow,
+                rows[i] - i
+            )
+        }
+        clearRows(rows[count - 1] + 1, topRow)
+        topRow -= count
+    }
+
+    fun copyRows(srcStartRowIdx: Int, srcEndRowIdx: Int, dstRowIdx: Int) {
+        var dstIdx = dstRowIdx
+        for (rowIdx in srcStartRowIdx..srcEndRowIdx) {
+            copyRow(rowIdx, dstIdx++)
+        }
+    }
+
+    fun copyRow(srcRowIdx: Int, dstRowIdx: Int) {
+        val srcRow = board[srcRowIdx]
+        val dstRow = board[dstRowIdx]
+        for (i in 0 until colCount) {
+            dstRow[i] = srcRow[i]
+        }
+    }
+
+    fun updateTopRow(rowIdx: Int) {
+        if (rowIdx > topRow) {
+            topRow = rowIdx
+        }
+    }
+
+    fun clearRows(startRowIdx: Int, endRowIdx: Int) {
+        for (i in startRowIdx..endRowIdx) {
+            board[i].fill(null)
+        }
+    }
+
     private fun validate(content: List<List<Int?>>): Boolean =
         content.size >= MIN_ROWS &&
         content[0].size >= MIN_COLS &&
@@ -111,6 +162,9 @@ class Board {
             }
         }
 
+    private fun createVisibleArray(): BooleanArray =
+        BooleanArray(visibleRowCount) { true }
+
     private fun createRect(): Rectangle =
         Rectangle(
             colCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
@@ -121,14 +175,20 @@ class Board {
     private fun drawBoxes(program: SimpleProgram) {
         val p = boxStartPos.copy()
         for (rowIdx in 0 until visibleRowCount) {
-            p[0] = boxStartPos[0]
-            for (color in board[rowIdx]) {
-                color?.let {
-                    Box.rect.draw(program, p, null, color, null)
-                }
-                p[0] += Box.BOX_SPAN
+            if (visible[rowIdx]) {
+                p[0] = boxStartPos[0]
+                drawRow(program, rowIdx, p)
             }
             p[1] += Box.BOX_SPAN
+        }
+    }
+
+    private fun drawRow(program: SimpleProgram, rowIdx: Int, pos: Vector) {
+        for (color in board[rowIdx]) {
+            color?.let {
+                Box.rect.draw(program, pos, null, it, null)
+            }
+            pos[0] += Box.BOX_SPAN
         }
     }
 

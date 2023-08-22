@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
+import kotlin.math.min
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -24,6 +25,9 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         private const val BUTTON_BREATH = 120f
         private const val QUEUE_CAPACITY = 10
         private const val DROP_DOWN_INTERVAL = 1000
+        private const val FLASHING_INTERVAL = 300
+        private const val MAX_FLASH_COUNT = 3
+        private const val MAX_DOWN_STEPS = 4
     }
 
     private lateinit var program: SimpleProgram
@@ -43,6 +47,9 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private var queue = EventQueue(QUEUE_CAPACITY)
     private var lastDownTime: Long = 0L
     private var lastFlashTime: Long = 0L
+    private var flashCount = 0
+    private var flashRows = IntArray(Box.BOX_ROWS) { -1 }
+    private var flashRowCount = 0
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -250,19 +257,31 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun handleLeftButton() {
-        Log.i(TAG, "Left")
+        if (curBox.canBePlaced(board, curBoxRow, curBoxCol - 1)) {
+            --curBoxCol
+        }
     }
 
     private fun handleRightButton() {
-        Log.i(TAG, "right")
+        if (curBox.canBePlaced(board, curBoxRow, curBoxCol + 1)) {
+            ++curBoxCol
+        }
     }
 
     private fun handleDownButton() {
-        Log.i(TAG, "down")
+        for (i in 0 until MAX_DOWN_STEPS) {
+            if (curBox.canBePlaced(board, curBoxRow - 1, curBoxCol)) {
+                --curBoxRow
+            }
+        }
     }
 
     private fun handleRotateButton() {
-        Log.i(TAG, "rotate")
+        val prevIndex = curBox.index
+        curBox.rotate()
+        if (!curBox.canBePlaced(board, curBoxRow, curBoxCol)) {
+            curBox.index = prevIndex
+        }
     }
 
     private fun resetCurBox(newType: Int, newIndex: Int) {
@@ -298,7 +317,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             --curBoxRow
         } else {
             curBox.placeInBoard(board, curBoxRow, curBoxCol)
-            checkForFullLines()
+            checkForFullRows(curTime)
             resetCurBox(preview.box.type, preview.box.index)
             if (state != GameState.STOPPED) {
                 preview.randomize()
@@ -308,7 +327,42 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         lastDownTime = curTime
     }
 
-    private fun checkForFullLines() {
+    private fun checkForFullRows(curTime: Long) {
+        flashRowCount = 0
+        for (rowIdx in curBoxRow until min(curBoxRow + Box.BOX_ROWS, board.rowCount)) {
+            if (board.isFullRow(rowIdx)) {
+                flashRows[flashRowCount++] = rowIdx
+            }
+        }
 
+        Log.i(TAG, "flashRowCount=$flashRowCount topRow=${board.topRow}")
+
+        if (flashRowCount > 0) {
+            board.removeRows(flashRows, flashRowCount)
+            /*
+            state = GameState.FLASHING
+            flashCount = 0
+            updateFlashRows(false)
+             */
+        }
+    }
+
+    private fun updateFlashing(curTime: Long) {
+        if (curTime - lastFlashTime < FLASHING_INTERVAL) {
+            return
+        }
+
+        ++flashCount
+        if (flashCount < MAX_FLASH_COUNT) {
+            updateFlashRows((flashCount % 2) == 0)
+        } else {
+            board.removeRows(flashRows, flashRowCount)
+        }
+    }
+
+    private fun updateFlashRows(visible: Boolean) {
+        for (i in 0 until flashCount) {
+            board.setVisibleRow(flashRows[i], visible)
+        }
     }
 }
