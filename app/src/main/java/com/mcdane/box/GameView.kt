@@ -19,11 +19,23 @@ class GameView(cxt: Context): GLSurfaceView(cxt) {
         getLocationOnScreen(pos)
         when (event?.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                queueEvent{ renderer.handlePointerDown(event.rawX - pos[0], event.rawY - pos[1])}
+                queueEvent {
+                    renderer.enqueueEvent(
+                        PointerAction.DOWN,
+                        event.rawX - pos[0],
+                        event.rawY - pos[1]
+                    )
+                }
                 return true
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                queueEvent { renderer.handlePointerUp() }
+                queueEvent {
+                    renderer.enqueueEvent(
+                        PointerAction.UP,
+                        event.rawX - pos[0],
+                        event.rawY - pos[1]
+                    )
+                }
                 return true
             }
         }

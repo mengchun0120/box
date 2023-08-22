@@ -2,9 +2,9 @@ package com.mcdane.box
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
-import java.util.concurrent.ArrayBlockingQueue
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -40,7 +40,10 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private lateinit var preview: Preview
     private lateinit var score: Score
     private var state = GameState.STOPPED
-    private var queue = ArrayBlockingQueue<MotionEvent>(QUEUE_CAPACITY)
+    private var queue = EventQueue(QUEUE_CAPACITY)
+    private var lastTime: Long = 0L
+    private var lastDownTime: Long = 0L
+    private var lastFlashTime: Long = 0L
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -56,32 +59,52 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(p0: GL10?) {
+        processEvent()
+        update()
+        draw()
+    }
+
+    fun enqueueEvent(action: PointerAction, x: Float, y: Float) {
+        if (!queue.full) queue.add(action, x, y)
+    }
+
+    fun close() {
+        program.close()
+    }
+
+    private fun draw() {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
-        curBox.draw(program, board, curBoxRow, curBoxCol)
+        if (state == GameState.RUNNING) curBox.draw(program, board, curBoxRow, curBoxCol)
         score.draw(program, textSys)
         preview.draw(program)
         buttonGrp.draw(program)
     }
 
-    fun enqueueEvent(event: MotionEvent) {
-        queue.offer(event)
+    private fun processEvent() {
+        while (!queue.empty) {
+            val e = queue.peek()
+            when (e.action) {
+                PointerAction.DOWN -> handlePointerDown(e.x, e.y)
+                PointerAction.UP -> handlePointerUp()
+            }
+            queue.remove()
+        }
     }
 
-    fun processEvent() {
-
+    private fun update() {
+        val curTime = SystemClock.uptimeMillis()
+        val delta = curTime - lastTime
+        Log.i(TAG, "$curTime $delta")
+        lastTime = curTime
     }
 
-    fun handlePointerDown(x: Float, y: Float) {
+    private fun handlePointerDown(x: Float, y: Float) {
         buttonGrp.onPointerDown(x, viewportSize[1] - y)
     }
 
-    fun handlePointerUp() {
+    private fun handlePointerUp() {
         buttonGrp.onPointerUp()
-    }
-
-    fun close() {
-        program.close()
     }
 
     private fun initOpenGL() {
@@ -97,16 +120,20 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initGame() {
-        val BOX_DOWN_PERIOD = 1000L
-        val BOX_DOWN_DELAY = 1000L
-
-        Box.init(context.assets, "box_bitmaps.json", "box_colors.json")
+        Box.init(
+            context.assets,
+            "box_bitmaps.json",
+            "box_colors.json"
+        )
         initBoard()
         initCurBox()
         initPreview()
         initScore()
         initButtons()
         state = GameState.RUNNING
+        lastTime = SystemClock.uptimeMillis()
+        lastDownTime = lastTime
+        lastFlashTime = lastTime
     }
 
     private fun initBoard() {

@@ -3,7 +3,7 @@ package com.mcdane.box
 import org.junit.Test
 import org.junit.Assert.*
 
-class BoxConfigTest {
+class BoxTest {
     @Test
     fun colTestMaskIsCorrect() {
         assertTrue(Box.colTestMask == 0x1111)

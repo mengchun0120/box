@@ -25,7 +25,7 @@ class EventQueue(val capacity: Int) {
     val empty: Boolean
         get() = size == 0
 
-    fun add(action:PointerAction, x:Float, y:Float) {
+    fun add(action: PointerAction, x: Float, y: Float) {
         if (full) throw RuntimeException("EventQueue is full")
 
         if (size > 0) {
