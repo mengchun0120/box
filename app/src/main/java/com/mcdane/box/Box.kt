@@ -23,9 +23,9 @@ fun toBitmap(frame: List<String>): Int {
 }
 
 @Serializable
-data class BoxConfigJsonItem(val frames: BoxFrames, val color: List<Int>, val score: Int, val weight: Int)
+data class BoxConfigJsonItem(val frames: BoxFrames, val color: List<Int>, val score: Long, val weight: Int)
 
-data class BoxConfig(val frames: List<Int>, val color: Color, val score: Int, val weight: Int) {
+data class BoxConfig(val frames: List<Int>, val color: Color, val score: Long, val weight: Int) {
     constructor(item: BoxConfigJsonItem):
         this(
             item.frames.map { toBitmap(it) },
@@ -180,6 +180,9 @@ class Box {
 
     inline val color: Color
         get() = configs[type].color
+
+    inline val score: Long
+        get() = configs[type].score
 
     inline val firstRow: Int
         get() = firstRow(bitmap)

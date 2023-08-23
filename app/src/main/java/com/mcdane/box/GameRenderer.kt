@@ -191,8 +191,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     }
 
     private fun initScore() {
-        val maxScoreWidth = 300f
-        score = Score(textSys, 1000L)
+        score = Score(textSys)
     }
 
     private fun resetViewport(width: Int, height: Int) {
@@ -314,6 +313,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             --curBoxRow
         } else {
             curBox.placeInBoard(board, curBoxRow, curBoxCol)
+            score.addScore(curBox.score, textSys)
             checkForFullRows(curTime)
             if (state == GameState.RUNNING) {
                 resetCurBox(preview.box.type, preview.box.index)
@@ -351,6 +351,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             lastFlashTime = curTime
         } else {
             board.removeRows(flashRows, flashRowCount)
+            score.addScore(fullRowScore(), textSys)
             state = GameState.RUNNING
             resetCurBox(preview.box.type, preview.box.index)
             preview.randomize()
@@ -362,4 +363,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             board.setVisibleRow(flashRows[i], visible)
         }
     }
+
+    private fun fullRowScore(): Long =
+        (1 shl (flashRowCount - 1)) * 100L
 }
