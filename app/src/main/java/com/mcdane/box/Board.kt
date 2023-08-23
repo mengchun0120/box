@@ -119,7 +119,7 @@ class Board {
                 rows[i] - i
             )
         }
-        clearRows(rows[count - 1] + 1, topRow)
+        clearRows(topRow - count + 1, topRow)
         topRow -= count
     }
 

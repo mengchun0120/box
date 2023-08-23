@@ -18,8 +18,6 @@ enum class GameState {
     STOPPED,
 }
 
-
-
 class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     companion object {
         private const val BUTTON_BREATH = 120f
@@ -85,7 +83,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             curBox.draw(program, board, curBoxRow, curBoxCol)
         }
         score.draw(program, textSys)
-        preview.draw(program, state == GameState.RUNNING)
+        preview.draw(program, state != GameState.STOPPED)
         buttonGrp.draw(program)
     }
 
@@ -108,7 +106,7 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
                 dropDownCurBox(curTime)
             }
             GameState.FLASHING -> {
-
+                updateFlashing(curTime)
             }
             else -> {
 
@@ -318,8 +316,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         } else {
             curBox.placeInBoard(board, curBoxRow, curBoxCol)
             checkForFullRows(curTime)
-            resetCurBox(preview.box.type, preview.box.index)
-            if (state != GameState.STOPPED) {
+            if (state == GameState.RUNNING) {
+                resetCurBox(preview.box.type, preview.box.index)
                 preview.randomize()
             }
         }
@@ -335,15 +333,11 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             }
         }
 
-        Log.i(TAG, "flashRowCount=$flashRowCount topRow=${board.topRow}")
-
         if (flashRowCount > 0) {
-            board.removeRows(flashRows, flashRowCount)
-            /*
             state = GameState.FLASHING
             flashCount = 0
+            lastFlashTime = curTime
             updateFlashRows(false)
-             */
         }
     }
 
@@ -355,13 +349,17 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         ++flashCount
         if (flashCount < MAX_FLASH_COUNT) {
             updateFlashRows((flashCount % 2) == 0)
+            lastFlashTime = curTime
         } else {
             board.removeRows(flashRows, flashRowCount)
+            state = GameState.RUNNING
+            resetCurBox(preview.box.type, preview.box.index)
+            preview.randomize()
         }
     }
 
     private fun updateFlashRows(visible: Boolean) {
-        for (i in 0 until flashCount) {
+        for (i in 0 until flashRowCount) {
             board.setVisibleRow(flashRows[i], visible)
         }
     }
