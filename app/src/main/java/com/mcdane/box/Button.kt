@@ -33,14 +33,7 @@ class Button(
 
     fun draw(program:SimpleProgram) {
         val tex = if (hasFocus) activeTexture else texture
-        rect.draw(
-            program,
-            pos,
-            null,
-            null,
-            null,
-            tex.id,
-        )
+        rect.draw(program, pos[0], pos[1], null, null, tex.id)
     }
 
     fun onPointerDown(x: Float, y: Float): Boolean {

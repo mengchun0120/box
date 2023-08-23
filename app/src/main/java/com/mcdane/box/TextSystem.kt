@@ -60,19 +60,21 @@ class TextSystem(mgr: AssetManager, fontDir: String) {
     fun draw(
         program: SimpleProgram,
         s: String,
-        pos: Vector,
+        x: Float,
+        y: Float,
         sz: TextSize,
         color: Color,
     ) {
-        val p = Vector(pos[0], pos[1] + height(sz) / 2.0f)
+        val y1 = y + height(sz) / 2f
+        var x1 = x
 
         for (ch in s) {
             val r = rect(sz, ch)
             val w = r.width / 2.0f
 
-            p[0] += w
-            r.draw(program, p, null, null, null, texture(ch).id, color)
-            p[0] += w
+            x1 += w
+            r.draw(program, x1, y1, null, null, texture(ch).id, color)
+            x1 += w
         }
     }
 

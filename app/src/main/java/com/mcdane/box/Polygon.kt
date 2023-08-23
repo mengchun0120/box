@@ -22,8 +22,8 @@ open class Polygon(
 
     fun draw(
         program: SimpleProgram,
-        objRef: Vector?,
-        direction: Vector?,
+        x: Float,
+        y: Float,
         fillColor: Color?,
         borderColor: Color?,
         textureId: Int,
@@ -35,19 +35,7 @@ open class Polygon(
         borderStart: Int,
         borderVertexCount: Int
     ) {
-        if (objRef != null) {
-            program.setUseObjRef(true)
-            program.setObjRef(objRef.data)
-        } else {
-            program.setUseObjRef(false)
-        }
-
-        if (direction != null) {
-            program.setUseDirection(true)
-            program.setDirection(direction.data)
-        } else {
-            program.setUseDirection(false)
-        }
+        program.setObjRef(x, y)
 
         program.setPosition(pos)
         program.setUseColor(textureId == 0)

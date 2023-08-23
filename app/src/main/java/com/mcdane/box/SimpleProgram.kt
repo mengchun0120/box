@@ -11,55 +11,53 @@ class SimpleProgram(res: Resources):
         R.raw.simple_frag_shader
     ) {
 
-    private var useObjRefLoc: Int = getUniformLocation("useObjRef")
-    private var objRefLoc: Int = getUniformLocation("objRef")
-    private var viewportSizeLoc: Int = getUniformLocation("viewportSize")
-    private var viewportOriginLoc: Int = getUniformLocation("viewportOrigin")
-    private var directionLoc: Int = getUniformLocation("direction")
-    private var useDirectionLoc: Int = getUniformLocation("useDirection")
-    private var positionLoc: Int = getAttributeLocation("position")
-    private var texPosLoc: Int = getAttributeLocation("texPos")
-    private var useColorLoc: Int = getUniformLocation("useColor")
-    private var useTexColorLoc: Int = getUniformLocation("useTexColor")
-    private var colorLoc: Int = getUniformLocation("color")
-    private var texColorLoc: Int = getUniformLocation("texColor")
-    private var texLoc: Int = getUniformLocation("tex")
-    private var alphaLoc: Int = getUniformLocation("alpha")
+    val objRefLoc: Int = getUniformLocation("objRef")
+    val viewportSizeLoc: Int = getUniformLocation("viewportSize")
+    val viewportOriginLoc: Int = getUniformLocation("viewportOrigin")
+    val positionLoc: Int = getAttributeLocation("position")
+    val texPosLoc: Int = getAttributeLocation("texPos")
+    val useColorLoc: Int = getUniformLocation("useColor")
+    val useTexColorLoc: Int = getUniformLocation("useTexColor")
+    val colorLoc: Int = getUniformLocation("color")
+    val texColorLoc: Int = getUniformLocation("texColor")
+    val texLoc: Int = getUniformLocation("tex")
+    val alphaLoc: Int = getUniformLocation("alpha")
+    val buffer = FloatArray(2)
 
-    fun setUseObjRef(enabled: Boolean) =
-        GL.glUniform1i(useObjRefLoc, if (enabled) 1 else 0)
+    inline fun setObjRef(x: Float, y: Float) {
+        buffer[0] = x
+        buffer[1] = y
+        GL.glUniform2fv(objRefLoc, 1, buffer, 0)
+    }
 
-    fun setObjRef(objRef: FloatArray) =
-        GL.glUniform2fv(objRefLoc, 1, objRef, 0)
+    inline fun setViewportSize(width: Float, height: Float) {
+        buffer[0] = width
+        buffer[1] = height
+        GL.glUniform2fv(viewportSizeLoc, 1, buffer, 0)
+    }
 
-    fun setViewportSize(viewportSize: FloatArray) =
-        GL.glUniform2fv(viewportSizeLoc, 1, viewportSize, 0)
+    inline fun setViewportOrigin(x: Float, y: Float) {
+        buffer[0] = x
+        buffer[1] = y
+        GL.glUniform2fv(viewportOriginLoc, 1, buffer, 0)
+    }
 
-    fun setViewportOrigin(viewportOrigin: FloatArray) =
-        GL.glUniform2fv(viewportOriginLoc, 1, viewportOrigin, 0)
-
-    fun setColor(color: Color) =
+    inline fun setColor(color: Color) =
         GL.glUniform4fv(colorLoc, 1, color.data, 0)
 
-    fun setUseColor(use: Boolean) =
+    inline fun setUseColor(use: Boolean) =
         GL.glUniform1i(useColorLoc, if (use) 1 else 0)
 
-    fun setUseDirection(use: Boolean) =
-        GL.glUniform1i(useDirectionLoc, if (use) 1 else 0)
-
-    fun setDirection(direction: FloatArray) =
-        GL.glUniform2fv(directionLoc, 1, direction, 0)
-
-    fun setUseTexColor(use: Boolean) =
+    inline fun setUseTexColor(use: Boolean) =
         GL.glUniform1i(useTexColorLoc, if (use) 1 else 0)
 
-    fun setTexColor(texColor: Color) =
+    inline fun setTexColor(texColor: Color) =
         GL.glUniform4fv(texColorLoc, 1, texColor.data, 0)
 
-    fun setAlpha(alpha: Float) =
+    inline fun setAlpha(alpha: Float) =
         GL.glUniform1f(alphaLoc, alpha)
 
-    fun setPosition(pos: VertexArray) {
+    inline fun setPosition(pos: VertexArray) {
         GL.glEnableVertexAttribArray(positionLoc)
         GL.glVertexAttribPointer(
             positionLoc,

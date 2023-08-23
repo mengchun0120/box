@@ -33,16 +33,16 @@ class Rectangle(val width: Float, val height: Float, val hasTexture: Boolean = t
 {
     fun draw(
         program: SimpleProgram,
-        objRef: Vector?,
-        direction: Vector?,
+        x: Float,
+        y: Float,
         fillColor: Color?,
-        borderColor: Color?,
+        borderColor: Color? = null,
         textureId: Int = 0,
         texColor: Color? = null,
     ) = super.draw(
         program,
-        objRef,
-        direction,
+        x,
+        y,
         fillColor,
         borderColor,
         textureId,

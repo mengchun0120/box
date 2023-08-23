@@ -32,8 +32,8 @@ class Score(textSys: TextSystem, val initScore: Long = 0L) {
     }
 
     fun draw(program: SimpleProgram, textSys: TextSystem) {
-        frame.draw(program, framePos, null, null, frameColor)
-        textSys.draw(program, scoreStr, textPos, textSize, scoreColor)
+        frame.draw(program, framePos[0], framePos[1], null, frameColor)
+        textSys.draw(program, scoreStr, textPos[0], textPos[1], textSize, scoreColor)
     }
 
     fun addScore(delta: Long, textSys: TextSystem) {

@@ -203,8 +203,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
         viewportOrigin[0] = viewportSize[0] / 2.0f
         viewportOrigin[1] = viewportSize[1] / 2.0f
 
-        program.setViewportSize(viewportSize.data)
-        program.setViewportOrigin(viewportOrigin.data)
+        program.setViewportSize(viewportSize[0], viewportSize[1])
+        program.setViewportOrigin(viewportOrigin[0], viewportOrigin[1])
     }
 
     private fun resetGamePos() {

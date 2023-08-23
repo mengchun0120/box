@@ -37,8 +37,6 @@ data class BoxConfig(val frames: List<Int>, val color: Color, val score: Int, va
 
 class Box {
     companion object {
-        const val BOX_BITMAPS_FILE = "box_bitmaps.json"
-        const val BOX_COLORS_FILE = "box_colors.json"
         const val BOX_ROWS = 4
         const val BOX_COLS = 4
         const val BOX_BREATH = 50.0f
@@ -212,39 +210,39 @@ class Box {
         rowIdx: Int,
         colIdx: Int
     ) {
-        val startPos = board.boxPos(rowIdx, colIdx)
-        val p = startPos.copy()
+        val startX = board.boxPosX(colIdx)
+        var y = board.boxPosY(rowIdx)
         var bmp = bitmap
 
         for (row in rowIdx until (rowIdx + BOX_ROWS)) {
-            p[0] = startPos[0]
+            var x = startX
             for (col in colIdx  until (colIdx + BOX_COLS)) {
                 if (board.visible(row, col) && (bmp and 1 != 0)) {
-                    rect.draw(program, p, null, color, null)
+                    rect.draw(program, x, y, color)
                 }
                 bmp = bmp ushr 1
-                p[0] += BOX_SPAN
+                x += BOX_SPAN
             }
-            p[1] += BOX_SPAN
+            y += BOX_SPAN
         }
     }
 
-    fun draw(program: SimpleProgram, pos: Vector) {
+    fun draw(program: SimpleProgram, x: Float, y: Float) {
         val displacement = BOX_SPACING + BOX_BREATH / 2f
-        val startX = pos[0] + displacement
-        val p = Vector(startX, pos[1] + displacement)
+        val startX = x + displacement
+        var y1 = y + displacement
         var bmp = bitmap
 
         for (row in 0 until  BOX_ROWS) {
-            p[0] = startX
+            var x = startX
             for (col in 0  until BOX_COLS) {
                 if (bmp and 1 != 0) {
-                    rect.draw(program, p, null, color, null)
+                    rect.draw(program, x, y1, color)
                 }
                 bmp = bmp ushr 1
-                p[0] += BOX_SPAN
+                x += BOX_SPAN
             }
-            p[1] += BOX_SPAN
+            y1 += BOX_SPAN
         }
     }
 

@@ -13,11 +13,11 @@ class Board {
         const val MIN_COLS = Box.BOX_COLS
     }
 
-    private val board: Array<Array<Color?>>
-    private val visible: BooleanArray
-    private val boundary: Rectangle
-    private val center = Vector(2)
-    private val boxStartPos = Vector(2)
+    val board: Array<Array<Color?>>
+    val visible: BooleanArray
+    val boundary: Rectangle
+    val center = Vector(2)
+    val boxStartPos = Vector(2)
 
     var topRow: Int = -1
         private set
@@ -80,9 +80,9 @@ class Board {
         drawBoundary(program)
     }
 
-    operator fun get(row: Int, col: Int): Color? = board[row][col]
+    inline operator fun get(row: Int, col: Int): Color? = board[row][col]
 
-    operator fun set(row: Int, col: Int, color: Color?) {
+    inline operator fun set(row: Int, col: Int, color: Color?) {
         board[row][col] = color
     }
 
@@ -91,23 +91,22 @@ class Board {
             row.joinToString(prefix="[", postfix="]")
         }
 
-    fun contains(rowIdx: Int, colIdx: Int): Boolean =
+    inline fun contains(rowIdx: Int, colIdx: Int): Boolean =
         (rowIdx in 0 until rowCount) &&
         (colIdx in 0 until colCount)
 
-    fun visible(rowIdx: Int, colIdx: Int): Boolean =
+    inline fun visible(rowIdx: Int, colIdx: Int): Boolean =
         (rowIdx in 0 until visibleRowCount) &&
         (colIdx in 0 until colCount)
 
-    fun boxPos(rowIdx: Int, colIdx: Int): Vector =
-        Vector(
-            boxStartPos[0] + colIdx * Box.BOX_SPAN,
-            boxStartPos[1] + rowIdx * Box.BOX_SPAN
-        )
+    inline fun boxPosX(colIdx: Int): Float =
+        boxStartPos[0] + colIdx * Box.BOX_SPAN
+    inline fun boxPosY(rowIdx: Int): Float =
+        boxStartPos[1] + rowIdx * Box.BOX_SPAN
 
-    fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
+    inline fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
 
-    fun setVisibleRow(rowIdx: Int, _visible: Boolean) {
+    inline fun setVisibleRow(rowIdx: Int, _visible: Boolean) {
         visible[rowIdx] = _visible
     }
 
@@ -173,26 +172,26 @@ class Board {
         )
 
     private fun drawBoxes(program: SimpleProgram) {
-        val p = boxStartPos.copy()
+        var y = boxStartPos[1]
         for (rowIdx in 0 until visibleRowCount) {
             if (visible[rowIdx]) {
-                p[0] = boxStartPos[0]
-                drawRow(program, rowIdx, p)
+                drawRow(program, rowIdx, y)
             }
-            p[1] += Box.BOX_SPAN
+            y += Box.BOX_SPAN
         }
     }
 
-    private fun drawRow(program: SimpleProgram, rowIdx: Int, pos: Vector) {
+    private fun drawRow(program: SimpleProgram, rowIdx: Int, y: Float) {
+        var x = boxStartPos[0]
         for (color in board[rowIdx]) {
             color?.let {
-                Box.rect.draw(program, pos, null, it, null)
+                Box.rect.draw(program, x, y, it)
             }
-            pos[0] += Box.BOX_SPAN
+            x += Box.BOX_SPAN
         }
     }
 
     private fun drawBoundary(program: SimpleProgram) {
-        boundary.draw(program, center, null, null, boudaryColor)
+        boundary.draw(program, center[0], center[1],null, boudaryColor)
     }
 }

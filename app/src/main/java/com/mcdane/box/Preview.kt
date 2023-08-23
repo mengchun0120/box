@@ -36,9 +36,9 @@ class Preview {
     }
 
     fun draw(program: SimpleProgram, drawBox: Boolean) {
-        rect.draw(program, pos, null, null, borderColor)
+        rect.draw(program, pos[0], pos[1], null, borderColor)
         if (drawBox) {
-            box.draw(program, boxPos)
+            box.draw(program, boxPos[0], boxPos[1])
         }
     }
 }
