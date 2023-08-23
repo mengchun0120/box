@@ -8,6 +8,33 @@ import kotlinx.serialization.json.decodeFromStream
 
 typealias BoxFrames = List<List<String>>
 
+fun toBitmap(frame: List<String>): Int {
+    if (frame.size != Box.BOX_ROWS) {
+        throw IllegalArgumentException("Invalid bitmap size (${frame.size})")
+    }
+
+    var retval = 0
+
+    for (rowStr in frame) {
+        retval = (retval shl 4) or Box.transformRow(rowStr)
+    }
+
+    return retval
+}
+
+@Serializable
+data class BoxConfigJsonItem(val frames: BoxFrames, val color: List<Int>, val score: Int, val weight: Int)
+
+data class BoxConfig(val frames: List<Int>, val color: Color, val score: Int, val weight: Int) {
+    constructor(item: BoxConfigJsonItem):
+        this(
+            item.frames.map { toBitmap(it) },
+            Color(item.color),
+            item.score,
+            item.weight
+        )
+}
+
 class Box {
     companion object {
         const val BOX_BITMAPS_FILE = "box_bitmaps.json"
@@ -22,57 +49,29 @@ class Box {
 
         val colTestMask = initColTestMask()
 
-        private lateinit var bitmaps: List<List<Int>>
-        private lateinit var palette: List<Color>
+        lateinit var configs: List<BoxConfig>
+            private set
 
         val typeCount: Int
-            get() = bitmaps.size
+            get() = configs.size
 
         val maxType: Int
             get() = typeCount - 1
 
         val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
 
-        fun init(assetMgr: AssetManager, bitmapFile: String, paletteFile: String) {
-            bitmaps = readBitmaps(assetMgr, bitmapFile)
-            palette = readPalette(assetMgr, paletteFile)
+        fun init(assetMgr: AssetManager, configFile: String) {
+            configs = Json.decodeFromStream<List<BoxConfigJsonItem>>(assetMgr.open(configFile))
+                          .map { BoxConfig(it) }
         }
 
-        fun init(_bitmaps: List<List<Int>>, _palette: List<Color>) {
-            if (_bitmaps.any{ it.size !=  INDEX_COUNT}) {
-                throw IllegalArgumentException("Invalid _bitmaps")
-            }
-
-            if (_bitmaps.size != _palette.size) {
-                throw IllegalArgumentException("Size of _bitmaps doesn't match _palette")
-            }
-
-            bitmaps = _bitmaps
-            palette = _palette
+        fun init(_configs: List<BoxConfig>) {
+            configs = _configs
         }
 
-        fun bitmap(type: Int, index: Int): Int = bitmaps[type][index]
+        fun bitmap(type: Int, index: Int): Int = configs[type].frames[index]
 
-        fun color(type: Int): Color = palette[type]
-
-        fun readBitmaps(assetMgr: AssetManager, filePath: String): List<List<Int>> =
-            Json.decodeFromStream<List<BoxFrames>>(assetMgr.open(filePath))
-                .map { frames ->
-                    if(frames.size == INDEX_COUNT) {
-                        frames.map { toBitmap(it) }
-                    } else {
-                        throw IllegalArgumentException("Size of frames is invalid")
-                    }
-                }
-
-        fun readPalette(assetMgr: AssetManager, filePath: String): List<Color> =
-            Json.decodeFromStream<List<List<Int>>>(assetMgr.open(filePath)).run {
-                return if(this.size == typeCount) {
-                    this.map { Color(it) }
-                } else {
-                    throw IllegalArgumentException("Number of colors doesn't match box types")
-                }
-            }
+        fun color(type: Int): Color = configs[type].color
 
         fun transformRow(rowStr: String): Int {
             if (rowStr.length != BOX_COLS) {
@@ -91,6 +90,7 @@ class Box {
         }
 
         fun toBitmap(frame: List<String>): Int {
+
             if (frame.size != BOX_ROWS) {
                 throw IllegalArgumentException("Invalid bitmap size (${frame.size})")
             }
@@ -177,28 +177,28 @@ class Box {
         index = newIndex
     }
 
-    val bitmap: Int
-        get() = bitmaps[type][index]
+    inline val bitmap: Int
+        get() = configs[type].frames[index]
 
-    val color: Color
-        get() = palette[type]
+    inline val color: Color
+        get() = configs[type].color
 
-    val firstRow: Int
+    inline val firstRow: Int
         get() = firstRow(bitmap)
 
-    val lastRow: Int
+    inline val lastRow: Int
         get() = lastRow(bitmap)
 
-    val firstCol: Int
+    inline val firstCol: Int
         get() = firstCol(bitmap)
 
-    val lastCol: Int
+    inline val lastCol: Int
         get() = lastCol(bitmap)
 
-    val rows: Int
+    inline val rows: Int
         get() = lastRow - firstRow + 1
 
-    val cols: Int
+    inline val cols: Int
         get() = lastCol - firstCol + 1
 
     fun assign(other: Box) {

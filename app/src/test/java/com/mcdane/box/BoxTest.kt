@@ -94,9 +94,15 @@ class BoxTest {
 
     @Test
     fun canBePlacedWorks() {
-        val bitmaps = listOf(listOf(0x0027, 0x0027, 0x0027, 0x0027))
-        val palette = listOf(Color(255, 0, 0, 255))
-        Box.init(bitmaps, palette)
+        val configs = listOf(
+            BoxConfig(
+                listOf(0x0027, 0x0027, 0x0027, 0x0027),
+                Color(255, 0, 0, 255),
+                1,
+                1
+            )
+        )
+        Box.init(configs)
 
         val boardContent = listOf(
             listOf<Int?>(null, 0, 0, null, null, null, null, null),
@@ -108,7 +114,7 @@ class BoxTest {
             listOf<Int?>(null, null, null, null, null, null, null, null),
             listOf<Int?>(null, null, null, null, null, null, null, null),
         )
-        val board = Board(boardContent, palette)
+        val board = Board(boardContent, configs)
 
         val box = Box(0, 0)
         assertTrue(box.canBePlaced(board, 0, 3))

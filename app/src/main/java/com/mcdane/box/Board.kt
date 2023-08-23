@@ -65,15 +65,15 @@ class Board {
         boundary = createRect()
     }
 
-    constructor(content: List<List<Int?>>, palette: List<Color>) {
+    constructor(content: List<List<Int?>>, configs: List<BoxConfig>) {
         if (!validate(content)) throw IllegalArgumentException("content is invalid")
-        board = createBoard(content, palette)
+        board = createBoard(content, configs)
         visible = createVisibleArray()
         boundary = createRect()
     }
 
-    constructor(assetManager: AssetManager, path: String, palette: List<Color>) :
-        this(Json.decodeFromStream<List<List<Int?>>>(assetManager.open(path)), palette)
+    constructor(assetManager: AssetManager, path: String, configs: List<BoxConfig>) :
+        this(Json.decodeFromStream<List<List<Int?>>>(assetManager.open(path)), configs)
 
     fun draw(program: SimpleProgram) {
         drawBoxes(program)
@@ -155,10 +155,10 @@ class Board {
         content[0].size >= MIN_COLS &&
         content.all{ it.size == content[0].size }
 
-    private fun createBoard(content: List<List<Int?>>, palette: List<Color>): Array<Array<Color?>> =
+    private fun createBoard(content: List<List<Int?>>, configs: List<BoxConfig>): Array<Array<Color?>> =
         Array<Array<Color?>>(content.size) { rowIdx ->
             Array<Color?>(content[rowIdx].size) { colIdx ->
-                content[rowIdx][colIdx]?.let { palette[it] }
+                content[rowIdx][colIdx]?.let { configs[it].color }
             }
         }
 
