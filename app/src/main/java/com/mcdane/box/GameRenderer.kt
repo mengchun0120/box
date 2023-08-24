@@ -18,7 +18,7 @@ enum class GameState {
     STOPPED,
 }
 
-class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
+class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfaceView.Renderer {
     companion object {
         private const val BUTTON_BREATH = 120f
         private const val QUEUE_CAPACITY = 10
@@ -141,8 +141,8 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
             "box_config.json"
         )
         initBoard()
-        initCurBox()
         initPreview()
+        initCurBox()
         initScore()
         initButtons()
         state = GameState.RUNNING
@@ -159,9 +159,10 @@ class GameRenderer(private val context: Context): GLSurfaceView.Renderer {
     private fun initCurBox() {
         curBox = Box()
         resetCurBox(
-            Random.nextInt(0, Box.typeCount),
-            Random.nextInt(0, Box.INDEX_COUNT)
+            preview.box.type,
+            preview.box.index
         )
+        preview.randomize()
     }
 
     private fun initButtons() {

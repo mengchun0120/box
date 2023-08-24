@@ -23,16 +23,35 @@ fun toBitmap(frame: List<String>): Int {
 }
 
 @Serializable
-data class BoxConfigJsonItem(val frames: BoxFrames, val color: List<Int>, val score: Long, val weight: Int)
+data class BoxConfigJsonItem(
+    val frames: BoxFrames,
+    val color: List<Int>,
+    val score: Long,
+    val weight: Int,
+    val level: Int,
+)
 
-data class BoxConfig(val frames: List<Int>, val color: Color, val score: Long, val weight: Int) {
+data class BoxConfig(
+    val frames: List<Int>,
+    val color: Color,
+    val score: Long,
+    val weight: Int,
+    val level: Int,
+) {
     constructor(item: BoxConfigJsonItem):
         this(
             item.frames.map { toBitmap(it) },
             Color(item.color),
             item.score,
-            item.weight
+            item.weight,
+            item.level,
         )
+
+    init {
+        if (level !in Box.MIN_LEVEL..Box.MAX_LEVEL) {
+            throw IllegalArgumentException("Invalid level $level")
+        }
+    }
 }
 
 class Box {
@@ -44,6 +63,8 @@ class Box {
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
         const val INDEX_COUNT = 4
         const val MAX_INDEX = INDEX_COUNT - 1
+        const val MIN_LEVEL = 0
+        const val MAX_LEVEL = 2
 
         val colTestMask = initColTestMask()
 

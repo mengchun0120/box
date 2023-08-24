@@ -2,7 +2,7 @@ package com.mcdane.box
 
 import kotlin.random.Random
 
-class Preview {
+class Preview(val maxLevel: Int = 0) {
     val box = Box()
     private val pos = Vector(2)
     private val boxPos = Vector(2)
@@ -11,6 +11,7 @@ class Preview {
         Box.BOX_ROWS * Box.BOX_SPAN + Box.BOX_SPACING + 2f
     )
     private val borderColor = Color(0, 0, 0, 255)
+    private val generator = BoxGenerator(maxLevel)
 
     init {
         randomize()
@@ -31,8 +32,7 @@ class Preview {
     }
 
     fun randomize() {
-        box.type = Random.nextInt(Box.typeCount)
-        box.index = Random.nextInt(Box.INDEX_COUNT)
+        generator.generate(box)
     }
 
     fun draw(program: SimpleProgram, drawBox: Boolean) {
