@@ -6,8 +6,8 @@ import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.MotionEvent
 
-class GameView(activity: Activity): GLSurfaceView(activity) {
-    private val renderer = GameRenderer(activity)
+class GameView(activity: Activity, maxLevel: Int): GLSurfaceView(activity) {
+    private val renderer = GameRenderer(activity, maxLevel)
 
     init {
         setEGLContextClientVersion(3)

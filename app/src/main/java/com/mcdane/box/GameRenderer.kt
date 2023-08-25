@@ -40,7 +40,7 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
     private var curBoxRow = 10
     private var curBoxCol = 8
     private val curBoxPos = Vector(2)
-    private val buttonGrp = ButtonGroup()
+    private val buttonGrp = GameButtonGroup()
     private lateinit var preview: Preview
     private lateinit var score: Score
     private var state = GameState.STOPPED
@@ -183,7 +183,7 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
 
         for (i in names.indices) {
             buttonGrp.buttons.add(
-                Button(
+                GameButton(
                     Texture(activity.assets, "${names[i]}.png"),
                     Texture(activity.assets, "${names[i]}_active.png"),
                     _width = BUTTON_BREATH,
@@ -195,7 +195,7 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
     }
 
     private fun initPreview() {
-        preview = Preview()
+        preview = Preview(maxLevel)
     }
 
     private fun initScore() {
@@ -395,7 +395,7 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
             AlertDialog.Builder(activity).apply {
                 setMessage("Game Over")
                 setPositiveButton(R.string.ok) { dialog, which ->
-                    dialog.cancel()
+                    activity.finish()
                 }
             }.show()
         }

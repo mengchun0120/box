@@ -1,13 +1,12 @@
 package com.mcdane.box
 
-import android.util.Log
 import kotlin.math.abs
 
 typealias ButtonAction = ()->Unit
 
 private val buttonFocusColor = Color(255, 0, 0, 255)
 
-class Button(
+class GameButton(
     val texture: Texture,
     val activeTexture: Texture,
     x: Float = 0f,

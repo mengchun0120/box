@@ -1,19 +1,17 @@
 package com.mcdane.box
 
-import android.util.Log
-
-class ButtonGroup {
-    val buttons = arrayListOf<Button>()
+class GameButtonGroup {
+    val buttons = arrayListOf<GameButton>()
 
     private var focusButtonIndex: Int = -1
 
     constructor()
 
-    constructor(vararg _buttons: Button) {
+    constructor(vararg _buttons: GameButton) {
         buttons.addAll(_buttons)
     }
 
-    constructor(_buttons: Collection<Button>) {
+    constructor(_buttons: Collection<GameButton>) {
         buttons.addAll(_buttons)
     }
 
