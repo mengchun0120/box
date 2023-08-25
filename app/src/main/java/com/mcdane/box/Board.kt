@@ -149,6 +149,8 @@ class Board {
         }
     }
 
+    fun reachTop(): Boolean = topRow >= visibleRowCount
+
     private fun validate(content: List<List<Int?>>): Boolean =
         content.size >= MIN_ROWS &&
         content[0].size >= MIN_COLS &&

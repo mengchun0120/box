@@ -1,5 +1,7 @@
 package com.mcdane.box
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.os.SystemClock
@@ -18,7 +20,7 @@ enum class GameState {
     STOPPED,
 }
 
-class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfaceView.Renderer {
+class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSurfaceView.Renderer {
     companion object {
         private const val BUTTON_BREATH = 120f
         private const val QUEUE_CAPACITY = 10
@@ -116,11 +118,15 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
     }
 
     private fun handlePointerDown(x: Float, y: Float) {
-        buttonGrp.onPointerDown(x, viewportSize[1] - y)
+        if (state == GameState.RUNNING) {
+            buttonGrp.onPointerDown(x, viewportSize[1] - y)
+        }
     }
 
     private fun handlePointerUp() {
-        buttonGrp.onPointerUp()
+        if (state == GameState.RUNNING) {
+            buttonGrp.onPointerUp()
+        }
     }
 
     private fun initOpenGL() {
@@ -128,16 +134,16 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        program = SimpleProgram(context.resources)
+        program = SimpleProgram(activity.resources)
         program.use()
         program.setAlpha(1.0f)
 
-        textSys = TextSystem(context.assets, "font")
+        textSys = TextSystem(activity.assets, "font")
     }
 
     private fun initGame() {
         Box.init(
-            context.assets,
+            activity.assets,
             "box_config.json"
         )
         initBoard()
@@ -145,6 +151,7 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
         initCurBox()
         initScore()
         initButtons()
+        initAlert()
         state = GameState.RUNNING
         lastDownTime = SystemClock.uptimeMillis()
         lastFlashTime = lastDownTime
@@ -177,8 +184,8 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
         for (i in names.indices) {
             buttonGrp.buttons.add(
                 Button(
-                    Texture(context.assets, "${names[i]}.png"),
-                    Texture(context.assets, "${names[i]}_active.png"),
+                    Texture(activity.assets, "${names[i]}.png"),
+                    Texture(activity.assets, "${names[i]}_active.png"),
                     _width = BUTTON_BREATH,
                     _height = BUTTON_BREATH,
                     action = actions[i],
@@ -193,6 +200,10 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
 
     private fun initScore() {
         score = Score(textSys)
+    }
+
+    private fun initAlert() {
+
     }
 
     private fun resetViewport(width: Int, height: Int) {
@@ -316,7 +327,7 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
             curBox.placeInBoard(board, curBoxRow, curBoxCol)
             score.addScore(curBox.score, textSys)
             checkForFullRows(curTime)
-            if (state == GameState.RUNNING) {
+            if (state == GameState.RUNNING && !checkForGameOver()) {
                 resetCurBox(preview.box.type, preview.box.index)
                 preview.randomize()
             }
@@ -353,9 +364,11 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
         } else {
             board.removeRows(flashRows, flashRowCount)
             score.addScore(fullRowScore(), textSys)
-            state = GameState.RUNNING
-            resetCurBox(preview.box.type, preview.box.index)
-            preview.randomize()
+            if (!checkForGameOver()) {
+                state = GameState.RUNNING
+                resetCurBox(preview.box.type, preview.box.index)
+                preview.randomize()
+            }
         }
     }
 
@@ -367,4 +380,24 @@ class GameRenderer(private val context: Context, val maxLevel: Int = 0): GLSurfa
 
     private fun fullRowScore(): Long =
         (1 shl (flashRowCount - 1)) * 100L
+
+    private fun checkForGameOver(): Boolean =
+        if (!board.reachTop()) {
+            false
+        } else {
+            state = GameState.STOPPED
+            showGameOver()
+            true
+        }
+
+    private fun showGameOver() {
+        activity.runOnUiThread {
+            AlertDialog.Builder(activity).apply {
+                setMessage("Game Over")
+                setPositiveButton(R.string.ok) { dialog, which ->
+                    dialog.cancel()
+                }
+            }.show()
+        }
+    }
 }

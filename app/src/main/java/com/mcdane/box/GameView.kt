@@ -1,12 +1,13 @@
 package com.mcdane.box
 
+import android.app.Activity
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.MotionEvent
 
-class GameView(cxt: Context): GLSurfaceView(cxt) {
-    private val renderer = GameRenderer(cxt)
+class GameView(activity: Activity): GLSurfaceView(activity) {
+    private val renderer = GameRenderer(activity)
 
     init {
         setEGLContextClientVersion(3)
