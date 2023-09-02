@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var difficultyLevels: RadioGroup
     private lateinit var singleGameButton: Button
     private lateinit var pvpGameButton: Button
+    private lateinit var profileButton: Button
     private lateinit var leaderboardButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         pvpGameButton = findViewById(R.id.start_pvp_button)
         pvpGameButton.setOnClickListener{ onPvPGameClicked() }
+
+        profileButton = findViewById(R.id.profile_button)
+        profileButton.setOnClickListener{ onProfileClicked() }
 
         leaderboardButton = findViewById(R.id.leaderboard_button)
         leaderboardButton.setOnClickListener{ onLeaderboardClicked() }
@@ -55,6 +59,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun onPvPGameClicked() {
         Log.i(TAG, "PvP Game")
+    }
+
+    private fun onProfileClicked() {
+        val intent = Intent(this, ProfileActivity::class.java)
+        startActivity(intent)
     }
 
     private fun onLeaderboardClicked() {

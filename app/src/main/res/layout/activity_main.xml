@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -26,7 +25,6 @@
             android:text="@string/difficlty_level"
             android:layout_gravity="center"
             android:textSize="16sp"
-            android:textColor="@color/black"
             app:layout_constraintBottom_toTopOf="@+id/difficulty_levels"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,25 +48,24 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="@string/easy_level"
-                android:textColor="@color/black" />
+                />
 
             <RadioButton
                 android:id="@+id/medium_button"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="@string/medium_level"
-                android:textColor="@color/black" />
+                />
 
             <RadioButton
                 android:id="@+id/hard_button"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="@string/hard_level"
-                android:textColor="@color/black" />
+                />
         </RadioGroup>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
-
 
     <Button
         android:id="@+id/start_single_player_game_button"
@@ -80,8 +77,7 @@
         android:text="@string/start_single_player_game"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/difficult_level_container"
-        app:layout_constraintBottom_toTopOf="@+id/start_pvp_button" />
+        app:layout_constraintTop_toBottomOf="@+id/difficult_level_container" />
 
     <Button
         android:id="@+id/start_pvp_button"
@@ -89,12 +85,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         android:text="@string/start_pvp"
-        app:layout_constraintBottom_toTopOf="@+id/leaderboard_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/start_single_player_game_button" />
+
+    <Button
+        android:id="@+id/profile_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/profile"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_pvp_button" />
 
     <Button
         android:id="@+id/leaderboard_button"
@@ -104,10 +109,8 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="300dp"
         android:text="@string/leaderboard"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/start_pvp_button" />
-
+        app:layout_constraintTop_toBottomOf="@+id/profile_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -99,7 +99,8 @@ class BoxTest {
                 listOf(0x0027, 0x0027, 0x0027, 0x0027),
                 Color(255, 0, 0, 255),
                 1,
-                1
+                1,
+                0,
             )
         )
         Box.init(configs)
