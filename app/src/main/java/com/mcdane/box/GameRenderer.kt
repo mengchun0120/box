@@ -13,14 +13,14 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
 import android.opengl.GLES30 as GL
 
-enum class GameState {
-    RUNNING,
-    PAUSED,
-    FLASHING,
-    STOPPED,
-}
-
 class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSurfaceView.Renderer {
+    enum class GameState {
+        RUNNING,
+        PAUSED,
+        FLASHING,
+        STOPPED,
+    }
+
     companion object {
         private const val BUTTON_BREATH = 120f
         private const val QUEUE_CAPACITY = 10
