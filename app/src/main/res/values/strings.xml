@@ -5,7 +5,7 @@
     <string name="start_single_player_game">Start Single Player Game</string>
     <string name="start_pvp">Start PvP</string>
     <string name="profile">Profile</string>
-    <string name="leaderboard">Leaderboard</string>
+    <string name="high_scores">High Scores</string>
     <string name="easy_level">Easy</string>
     <string name="medium_level">Medium</string>
     <string name="hard_level">Hard</string>
@@ -16,4 +16,7 @@
     <string name="last_name">Last Name</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="score">Score</string>
+    <string name="time">Time</string>
 </resources>

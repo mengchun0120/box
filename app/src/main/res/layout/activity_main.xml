@@ -105,13 +105,13 @@
         app:layout_constraintTop_toBottomOf="@+id/start_pvp_button" />
 
     <Button
-        android:id="@+id/leaderboard_button"
+        android:id="@+id/high_scores_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="300dp"
-        android:text="@string/leaderboard"
+        android:text="@string/high_scores"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_button" />

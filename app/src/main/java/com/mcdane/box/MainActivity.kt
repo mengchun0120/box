@@ -36,6 +36,7 @@ class MainActivity : Activity() {
     private lateinit var pvpGameButton: Button
     private lateinit var profileButton: Button
     private lateinit var leaderboardButton: Button
+    private var db: BoxDatabase? = null
     var player: Player? = null
         private set
     val playerName: String
@@ -81,8 +82,8 @@ class MainActivity : Activity() {
         profileButton = findViewById(R.id.profile_button)
         profileButton.setOnClickListener{ onProfileClicked() }
 
-        leaderboardButton = findViewById(R.id.leaderboard_button)
-        leaderboardButton.setOnClickListener{ onLeaderboardClicked() }
+        leaderboardButton = findViewById(R.id.high_scores_button)
+        leaderboardButton.setOnClickListener{ onHighScoresClicked() }
     }
 
     private fun initPlayer() {
@@ -121,8 +122,9 @@ class MainActivity : Activity() {
         startActivityForResult(intent, PROFILE_REQUEST_CODE)
     }
 
-    private fun onLeaderboardClicked() {
-        Log.i(TAG, "Leaderboard")
+    private fun onHighScoresClicked() {
+        val intent = Intent(this, HighScoresActivity::class.java)
+        startActivity(intent)
     }
 
     private fun savePlayer(intent: Intent) {
