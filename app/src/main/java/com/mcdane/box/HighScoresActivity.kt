@@ -3,6 +3,7 @@ package com.mcdane.box
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +15,12 @@ import androidx.recyclerview.widget.RecyclerView
 import java.sql.Timestamp
 import java.util.*
 
-class HighScoresAdapter(val data: List<ScoreRecord>) :
+class HighScoresAdapter(var data: List<ScoreRecord>) :
     RecyclerView.Adapter<HighScoresAdapter.ViewHolder>()
 {
+    constructor():
+        this(ArrayList<ScoreRecord>())
+
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val nameView: TextView = view.findViewById(R.id.name)
         val scoreView: TextView = view.findViewById(R.id.score)
@@ -43,31 +47,16 @@ class HighScoresAdapter(val data: List<ScoreRecord>) :
 class HighScoresActivity : AppCompatActivity() {
     private lateinit var scoreList: RecyclerView
     private lateinit var okButton: Button
-
-    private val data: List<ScoreRecord> = listOf(
-        ScoreRecord(
-            1,
-            "John Denver",
-            10000L,
-            Date(System.currentTimeMillis())
-        ),
-        ScoreRecord(
-            1,
-            "Mary Smith",
-            90000L,
-            Date(System.currentTimeMillis())
-        ),
-    )
+    private val adapter = HighScoresAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_high_scores)
 
-        val adapter = HighScoresAdapter(data)
-
         scoreList = findViewById(R.id.score_list)
         scoreList.layoutManager = LinearLayoutManager(this)
         scoreList.adapter = adapter
+        initData()
 
         okButton = findViewById(R.id.score_ok_button)
         okButton.setOnClickListener{ onOKClicked() }
@@ -75,5 +64,14 @@ class HighScoresActivity : AppCompatActivity() {
 
     private fun onOKClicked() {
         finish()
+    }
+
+    private fun initData() {
+        BoxDatabase.handler.post {
+            val data = BoxDatabase.instance?.scoreDao()?.getTopRecords() ?: ArrayList<ScoreRecord>()
+            adapter.data = data
+            adapter.notifyDataSetChanged()
+            Log.i(TAG, "data changed")
+        }
     }
 }

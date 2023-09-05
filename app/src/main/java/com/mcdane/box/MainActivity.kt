@@ -11,6 +11,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.room.Room
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -36,7 +37,6 @@ class MainActivity : Activity() {
     private lateinit var pvpGameButton: Button
     private lateinit var profileButton: Button
     private lateinit var leaderboardButton: Button
-    private var db: BoxDatabase? = null
     var player: Player? = null
         private set
     val playerName: String
@@ -47,6 +47,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         initPlayer()
         initUI()
+        initDB()
     }
 
     override fun onDestroy() {
@@ -91,6 +92,10 @@ class MainActivity : Activity() {
         if (playerFile.exists()) {
             player = Json.decodeFromStream<Player>(playerFile.inputStream())
         }
+    }
+
+    private fun initDB() {
+        BoxDatabase.init(this)
     }
 
     private fun onDifficultyLevelChanged(checkId: Int) {

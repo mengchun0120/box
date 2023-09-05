@@ -1,8 +1,12 @@
 package com.mcdane.box
 
+import android.content.Context
+import android.os.HandlerThread
 import androidx.room.*
 import java.sql.Timestamp
 import java.util.Date
+import android.os.Handler
+import android.util.Log
 
 @Entity(tableName="scores")
 data class ScoreRecord(
@@ -40,5 +44,26 @@ class Converters {
 @Database(entities = [ScoreRecord::class], version=1)
 @TypeConverters(Converters::class)
 abstract class BoxDatabase: RoomDatabase() {
+    companion object {
+        private val thread = HandlerThread("database").apply { start() }
+        val handler = Handler(thread.looper)
+        var instance: BoxDatabase? = null
+
+        fun init(context: Context) {
+            handler.post {
+                instance = Room.databaseBuilder(
+                    context,
+                    BoxDatabase::class.java,
+                    "box"
+                ).build()
+                Log.i(TAG, "BoxDatabase initialized")
+            }
+        }
+
+        fun stop() {
+            thread.quitSafely()
+        }
+    }
+
     abstract fun scoreDao(): ScoreRecordDao
 }
