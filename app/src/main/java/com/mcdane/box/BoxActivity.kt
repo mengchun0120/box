@@ -8,7 +8,11 @@ class BoxActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        view = GameView(this, intent.getIntExtra("maxLevel", 0))
+        view = GameView(
+            this,
+            intent.getStringExtra("playerName") ?: "Unnamed Player",
+            intent.getIntExtra("maxLevel", 0),
+        )
         setContentView(view)
     }
 }

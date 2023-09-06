@@ -11,8 +11,8 @@ class Score(textSys: TextSystem, val initScore: Long = 0L) {
     )
     private val framePos = Vector(2)
     private val frameColor = Color(0, 0, 0, 255)
-    private var score: Long = initScore
-        set(value) {
+    var score: Long = initScore
+        private set(value) {
             field = value
             scoreStr = value.toString()
         }

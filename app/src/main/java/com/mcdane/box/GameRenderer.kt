@@ -7,13 +7,18 @@ import android.opengl.GLSurfaceView
 import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
+import java.util.*
 import kotlin.math.min
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
 import android.opengl.GLES30 as GL
 
-class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSurfaceView.Renderer {
+class GameRenderer(
+    private val activity: Activity,
+    val playerName: String,
+    val maxLevel: Int = 0
+): GLSurfaceView.Renderer {
     enum class GameState {
         RUNNING,
         PAUSED,
@@ -105,7 +110,7 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
 
         when (state) {
             GameState.RUNNING -> {
-                dropDownCurBox(curTime)
+                updateRunning(curTime)
             }
             GameState.FLASHING -> {
                 updateFlashing(curTime)
@@ -313,10 +318,10 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
             }
         }
 
-        state = GameState.STOPPED
+        showGameOver()
     }
 
-    private fun dropDownCurBox(curTime: Long) {
+    private fun updateRunning(curTime: Long) {
         if (curTime - lastDownTime < DROP_DOWN_INTERVAL) {
             return
         }
@@ -385,12 +390,13 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
         if (!board.reachTop()) {
             false
         } else {
-            state = GameState.STOPPED
             showGameOver()
             true
         }
 
     private fun showGameOver() {
+        state = GameState.STOPPED
+
         activity.runOnUiThread {
             AlertDialog.Builder(activity).apply {
                 setMessage("Game Over")
@@ -398,6 +404,12 @@ class GameRenderer(private val activity: Activity, val maxLevel: Int = 0): GLSur
                     activity.finish()
                 }
             }.show()
+        }
+
+        BoxDatabase.handler.post {
+            BoxDatabase.instance?.scoreDao()?.add(
+                ScoreRecord(0, playerName, score.score, Date(System.currentTimeMillis()))
+            )
         }
     }
 }

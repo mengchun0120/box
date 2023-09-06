@@ -22,7 +22,7 @@ interface ScoreRecordDao {
         const val HIGH_SCORE_COUNT = 20
     }
 
-    @Query("SELECT * FROM scores ORDER BY time DESC LIMIT $HIGH_SCORE_COUNT")
+    @Query("SELECT * FROM scores ORDER BY score DESC LIMIT $HIGH_SCORE_COUNT")
     fun getTopRecords(): List<ScoreRecord>
 
     @Insert

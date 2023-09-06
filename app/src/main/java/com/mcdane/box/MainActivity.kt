@@ -110,6 +110,7 @@ class MainActivity : Activity() {
     private fun onSingleGameClicked() {
         val intent = Intent(this, BoxActivity::class.java)
         intent.putExtra("maxLevel", maxLevel)
+        intent.putExtra("playerName", playerName)
         startActivity(intent)
     }
 
