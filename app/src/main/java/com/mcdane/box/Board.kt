@@ -1,8 +1,6 @@
 package com.mcdane.box
 
-import android.content.res.AssetManager
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import kotlin.math.min
 
 class Board {
     companion object {
@@ -14,10 +12,19 @@ class Board {
     }
 
     val board: Array<Array<Color?>>
-    val visible: BooleanArray
-    val boundary: Rectangle
-    val center = Vector(2)
-    val boxStartPos = Vector(2)
+    private val visible: BooleanArray
+    private val boundary: Rectangle
+    private val center = Vector(2)
+    private val boxStartPos = Vector(2)
+
+    val curBox = Box()
+    private var curBoxRow = 0
+    private var curBoxCol = 0
+    private var curBoxValid = false
+
+    private var fullRows = IntArray(Box.BOX_ROWS) { -1 }
+    var fullRowCount = 0
+        private set
 
     var topRow: Int = -1
         private set
@@ -72,24 +79,91 @@ class Board {
         boundary = createRect()
     }
 
-    constructor(assetManager: AssetManager, path: String, configs: List<BoxConfig>) :
-        this(Json.decodeFromStream<List<List<Int?>>>(assetManager.open(path)), configs)
-
     fun draw(program: SimpleProgram) {
         drawBoxes(program)
+        if (curBoxValid) {
+            curBox.draw(program, this, curBoxRow, curBoxCol)
+        }
         drawBoundary(program)
-    }
-
-    inline operator fun get(row: Int, col: Int): Color? = board[row][col]
-
-    inline operator fun set(row: Int, col: Int, color: Color?) {
-        board[row][col] = color
     }
 
     override fun toString(): String =
         board.joinToString(prefix="[", postfix="]") { row ->
             row.joinToString(prefix="[", postfix="]")
         }
+
+    inline operator fun get(rowIdx: Int, colIdx: Int) = board[rowIdx][colIdx]
+
+    inline operator fun set(rowIdx: Int, colIdx: Int, color: Color?) {
+        board[rowIdx][colIdx] = color
+    }
+
+    fun resetCurBox(newType: Int, newIndex: Int): Boolean {
+        curBox.type = newType
+        curBox.index = newIndex
+        resetCurBoxCol()
+        curBoxValid = resetCurBoxRow()
+        return curBoxValid
+    }
+
+    fun moveDownCurBox(): Boolean =
+        if (curBox.canBePlaced(this, curBoxRow - 1, curBoxCol)) {
+            --curBoxRow
+            true
+        } else {
+            false
+        }
+
+    fun moveLeftCurBox(): Boolean =
+        if (curBox.canBePlaced(this, curBoxRow, curBoxCol - 1)) {
+            --curBoxCol
+            true
+        } else {
+            false
+        }
+
+    fun moveRightCurBox(): Boolean =
+        if (curBox.canBePlaced(this, curBoxRow, curBoxCol + 1)) {
+            ++curBoxCol
+            true
+        } else {
+            false
+        }
+
+    fun rotateCurBox(): Boolean {
+        val prevIndex = curBox.index
+        curBox.rotate()
+        return if (!curBox.canBePlaced(this, curBoxRow, curBoxCol)) {
+            curBox.index = prevIndex
+            false
+        } else {
+            true
+        }
+    }
+
+    fun placeCurBox() {
+        curBox.placeInBoard(this, curBoxRow, curBoxCol)
+        curBoxValid = false
+    }
+
+
+    fun checkFullRows(): Boolean {
+        fullRowCount = 0
+        for (rowIdx in curBoxRow until min(curBoxRow + Box.BOX_ROWS, rowCount)) {
+            if (isFullRow(rowIdx)) {
+                fullRows[fullRowCount++] = rowIdx
+            }
+        }
+        return fullRowCount > 0
+    }
+
+    fun setFullRowVisible(visible: Boolean) {
+        for (i in 0 until fullRowCount) {
+            setVisibleRow(fullRows[i], visible)
+        }
+    }
+
+    fun removeFullRows() = removeRows(fullRows, fullRowCount)
 
     inline fun contains(rowIdx: Int, colIdx: Int): Boolean =
         (rowIdx in 0 until rowCount) &&
@@ -99,14 +173,15 @@ class Board {
         (rowIdx in 0 until visibleRowCount) &&
         (colIdx in 0 until colCount)
 
-    inline fun boxPosX(colIdx: Int): Float =
+    fun boxPosX(colIdx: Int): Float =
         boxStartPos[0] + colIdx * Box.BOX_SPAN
-    inline fun boxPosY(rowIdx: Int): Float =
+
+    fun boxPosY(rowIdx: Int): Float =
         boxStartPos[1] + rowIdx * Box.BOX_SPAN
 
-    inline fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
+    fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
 
-    inline fun setVisibleRow(rowIdx: Int, _visible: Boolean) {
+    fun setVisibleRow(rowIdx: Int, _visible: Boolean) {
         visible[rowIdx] = _visible
     }
 
@@ -195,5 +270,22 @@ class Board {
 
     private fun drawBoundary(program: SimpleProgram) {
         boundary.draw(program, center[0], center[1],null, boudaryColor)
+    }
+
+    private fun resetCurBoxCol() {
+        curBoxCol = centerColIdx - (curBox.cols - 1) / 2
+    }
+
+    private fun resetCurBoxRow(): Boolean {
+        val startRow = visibleRowCount - curBox.rows
+
+        for (rowIdx in startRow until visibleRowCount) {
+            if (curBox.canBePlaced(this, rowIdx, curBoxCol)) {
+                curBoxRow = rowIdx
+                return true
+            }
+        }
+
+        return false
     }
 }

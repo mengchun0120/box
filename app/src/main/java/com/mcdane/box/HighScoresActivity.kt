@@ -1,7 +1,6 @@
 package com.mcdane.box
 
-import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,11 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.sql.Timestamp
 import java.util.*
+
 
 class HighScoresAdapter(var data: List<ScoreRecord>) :
     RecyclerView.Adapter<HighScoresAdapter.ViewHolder>()
@@ -44,7 +42,7 @@ class HighScoresAdapter(var data: List<ScoreRecord>) :
     }
 }
 
-class HighScoresActivity : AppCompatActivity() {
+class HighScoresActivity : Activity() {
     private lateinit var scoreList: RecyclerView
     private lateinit var okButton: Button
     private val adapter = HighScoresAdapter()

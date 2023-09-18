@@ -41,10 +41,6 @@ class GameRenderer(
     private val viewportOrigin = Vector(2)
     private lateinit var board: Board
     private val boardLeft = 20.0f
-    private lateinit var curBox: Box
-    private var curBoxRow = 10
-    private var curBoxCol = 8
-    private val curBoxPos = Vector(2)
     private val buttonGrp = GameButtonGroup()
     private lateinit var preview: Preview
     private lateinit var score: Score
@@ -53,8 +49,6 @@ class GameRenderer(
     private var lastDownTime: Long = 0L
     private var lastFlashTime: Long = 0L
     private var flashCount = 0
-    private var flashRows = IntArray(Box.BOX_ROWS) { -1 }
-    private var flashRowCount = 0
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -86,9 +80,6 @@ class GameRenderer(
     private fun draw() {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
-        if (state == GameState.RUNNING) {
-            curBox.draw(program, board, curBoxRow, curBoxCol)
-        }
         score.draw(program, textSys)
         preview.draw(program, state != GameState.STOPPED)
         buttonGrp.draw(program)
@@ -169,11 +160,7 @@ class GameRenderer(
     }
 
     private fun initCurBox() {
-        curBox = Box()
-        resetCurBox(
-            preview.box.type,
-            preview.box.index
-        )
+        board.resetCurBox(preview.box.type, preview.box.index)
         preview.randomize()
     }
 
@@ -228,11 +215,6 @@ class GameRenderer(
             boardLeft,
             (viewportSize[1] - board.height) / 2.0f
         )
-
-        curBoxPos.assign(
-            board.pos[0] + 1.0f + curBoxCol * Box.BOX_SPAN,
-            board.pos[1] + 1.0f + curBoxRow * Box.BOX_SPAN
-        )
     }
 
     private fun resetButtonPos() {
@@ -270,55 +252,23 @@ class GameRenderer(
     }
 
     private fun handleLeftButton() {
-        if (curBox.canBePlaced(board, curBoxRow, curBoxCol - 1)) {
-            --curBoxCol
-        }
+        board.moveLeftCurBox()
     }
 
     private fun handleRightButton() {
-        if (curBox.canBePlaced(board, curBoxRow, curBoxCol + 1)) {
-            ++curBoxCol
-        }
+        board.moveRightCurBox()
     }
 
     private fun handleDownButton() {
         for (i in 0 until MAX_DOWN_STEPS) {
-            if (curBox.canBePlaced(board, curBoxRow - 1, curBoxCol)) {
-                --curBoxRow
+            if (!board.moveDownCurBox()) {
+                break;
             }
         }
     }
 
     private fun handleRotateButton() {
-        val prevIndex = curBox.index
-        curBox.rotate()
-        if (!curBox.canBePlaced(board, curBoxRow, curBoxCol)) {
-            curBox.index = prevIndex
-        }
-    }
-
-    private fun resetCurBox(newType: Int, newIndex: Int) {
-        curBox.type = newType
-        curBox.index = newIndex
-        resetCurBoxCol()
-        resetCurBoxRow()
-    }
-
-    private fun resetCurBoxCol() {
-        curBoxCol = board.centerColIdx - (curBox.cols - 1) / 2
-    }
-
-    private fun resetCurBoxRow() {
-        val startRow = board.visibleRowCount - curBox.rows
-
-        for (rowIdx in startRow until board.visibleRowCount) {
-            if (curBox.canBePlaced(board, rowIdx, curBoxCol)) {
-                curBoxRow = rowIdx
-                return
-            }
-        }
-
-        showGameOver()
+        board.rotateCurBox()
     }
 
     private fun updateRunning(curTime: Long) {
@@ -326,15 +276,12 @@ class GameRenderer(
             return
         }
 
-        if (curBox.canBePlaced(board, curBoxRow - 1, curBoxCol)) {
-            --curBoxRow
-        } else {
-            curBox.placeInBoard(board, curBoxRow, curBoxCol)
-            score.addScore(curBox.score, textSys)
+        if (!board.moveDownCurBox()) {
+            board.placeCurBox()
+            score.addScore(board.curBox.score, textSys)
             checkForFullRows(curTime)
             if (state == GameState.RUNNING && !checkForGameOver()) {
-                resetCurBox(preview.box.type, preview.box.index)
-                preview.randomize()
+                resetCurBox()
             }
         }
 
@@ -342,18 +289,11 @@ class GameRenderer(
     }
 
     private fun checkForFullRows(curTime: Long) {
-        flashRowCount = 0
-        for (rowIdx in curBoxRow until min(curBoxRow + Box.BOX_ROWS, board.rowCount)) {
-            if (board.isFullRow(rowIdx)) {
-                flashRows[flashRowCount++] = rowIdx
-            }
-        }
-
-        if (flashRowCount > 0) {
+        if (board.checkFullRows()) {
             state = GameState.FLASHING
             flashCount = 0
             lastFlashTime = curTime
-            updateFlashRows(false)
+            board.setFullRowVisible(false)
         }
     }
 
@@ -364,27 +304,29 @@ class GameRenderer(
 
         ++flashCount
         if (flashCount < MAX_FLASH_COUNT) {
-            updateFlashRows((flashCount % 2) == 0)
+            board.setFullRowVisible((flashCount % 2) == 0)
             lastFlashTime = curTime
         } else {
-            board.removeRows(flashRows, flashRowCount)
+            board.removeFullRows()
             score.addScore(fullRowScore(), textSys)
             if (!checkForGameOver()) {
                 state = GameState.RUNNING
-                resetCurBox(preview.box.type, preview.box.index)
-                preview.randomize()
+                resetCurBox()
             }
         }
     }
 
-    private fun updateFlashRows(visible: Boolean) {
-        for (i in 0 until flashRowCount) {
-            board.setVisibleRow(flashRows[i], visible)
-        }
-    }
-
     private fun fullRowScore(): Long =
-        (1 shl (flashRowCount - 1)) * 100L
+        (1 shl (board.fullRowCount - 1)) * 100L
+
+    private fun resetCurBox(): Boolean =
+        if (!board.resetCurBox(preview.box.type, preview.box.index)) {
+            showGameOver()
+            false
+        } else {
+            preview.randomize()
+            true
+        }
 
     private fun checkForGameOver(): Boolean =
         if (!board.reachTop()) {

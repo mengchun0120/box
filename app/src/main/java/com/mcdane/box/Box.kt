@@ -258,13 +258,13 @@ class Box {
         var bmp = bitmap
 
         for (row in 0 until  BOX_ROWS) {
-            var x = startX
+            var x1 = startX
             for (col in 0  until BOX_COLS) {
                 if (bmp and 1 != 0) {
-                    rect.draw(program, x, y1, color)
+                    rect.draw(program, x1, y1, color)
                 }
                 bmp = bmp ushr 1
-                x += BOX_SPAN
+                x1 += BOX_SPAN
             }
             y1 += BOX_SPAN
         }
