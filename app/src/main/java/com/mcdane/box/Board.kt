@@ -4,8 +4,8 @@ import kotlin.math.min
 
 class Board {
     companion object {
-        private val boudaryColor = Color(0, 0, 255, 255)
-        const val HIDDEN_ROWS = Box.BOX_ROWS
+        private val boundaryColor = Color(0, 0, 255, 255)
+        private const val HIDDEN_ROWS = Box.BOX_ROWS
         const val MIN_VISIBLE_ROWS = Box.BOX_ROWS
         const val MIN_ROWS = MIN_VISIBLE_ROWS + HIDDEN_ROWS
         const val MIN_COLS = Box.BOX_COLS
@@ -25,6 +25,10 @@ class Board {
     private var fullRows = IntArray(Box.BOX_ROWS) { -1 }
     var fullRowCount = 0
         private set
+
+    private val small: Boolean
+    private val boxSpan: Float
+    private val boxBreath: Float
 
     var topRow: Int = -1
         private set
@@ -52,11 +56,11 @@ class Board {
             field = value
             center[0] = value[0] + width / 2.0f
             center[1] = value[1] + height / 2.0f
-            boxStartPos[0] = value[0] + 1.0f + Box.BOX_SPACING + Box.BOX_BREATH / 2.0f
-            boxStartPos[1] = value[1] + 1.0f + Box.BOX_SPACING + Box.BOX_BREATH / 2.0f
+            boxStartPos[0] = value[0] + 1.0f + Box.BOX_SPACING + boxBreath / 2.0f
+            boxStartPos[1] = value[1] + 1.0f + Box.BOX_SPACING + boxBreath / 2.0f
         }
 
-    constructor(_visibleRowCount: Int, _colCount: Int) {
+    constructor(_visibleRowCount: Int, _colCount: Int, _small: Boolean = false) {
         if (_visibleRowCount < MIN_VISIBLE_ROWS) {
             throw IllegalArgumentException("Invalid _visibleRowCount ($_visibleRowCount)")
         }
@@ -69,20 +73,26 @@ class Board {
             Array<Color?>(_colCount){ null}
         }
         visible = createVisibleArray()
+        small = _small
+        boxSpan = Box.boxSpan(small)
+        boxBreath = Box.boxBreath(small)
         boundary = createRect()
     }
 
-    constructor(content: List<List<Int?>>, configs: List<BoxConfig>) {
+    constructor(content: List<List<Int?>>, configs: List<BoxConfig>, _small: Boolean = false) {
         if (!validate(content)) throw IllegalArgumentException("content is invalid")
         board = createBoard(content, configs)
         visible = createVisibleArray()
+        small = _small
+        boxSpan = Box.boxSpan(small)
+        boxBreath = Box.boxBreath(small)
         boundary = createRect()
     }
 
     fun draw(program: SimpleProgram) {
         drawBoxes(program)
         if (curBoxValid) {
-            curBox.draw(program, this, curBoxRow, curBoxCol)
+            curBox.draw(program, this, curBoxRow, curBoxCol, small)
         }
         drawBoundary(program)
     }
@@ -146,7 +156,6 @@ class Board {
         curBoxValid = false
     }
 
-
     fun checkFullRows(): Boolean {
         fullRowCount = 0
         for (rowIdx in curBoxRow until min(curBoxRow + Box.BOX_ROWS, rowCount)) {
@@ -174,10 +183,10 @@ class Board {
         (colIdx in 0 until colCount)
 
     fun boxPosX(colIdx: Int): Float =
-        boxStartPos[0] + colIdx * Box.BOX_SPAN
+        boxStartPos[0] + colIdx * boxSpan
 
     fun boxPosY(rowIdx: Int): Float =
-        boxStartPos[1] + rowIdx * Box.BOX_SPAN
+        boxStartPos[1] + rowIdx * boxSpan
 
     fun isFullRow(rowIdx: Int): Boolean = board[rowIdx].all { it != null }
 
@@ -243,8 +252,8 @@ class Board {
 
     private fun createRect(): Rectangle =
         Rectangle(
-            colCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
-            visibleRowCount * Box.BOX_SPAN + Box.BOX_SPACING + 2f,
+            colCount * boxSpan + Box.BOX_SPACING + 2f,
+            visibleRowCount * boxSpan + Box.BOX_SPACING + 2f,
             false
         )
 
@@ -254,7 +263,7 @@ class Board {
             if (visible[rowIdx]) {
                 drawRow(program, rowIdx, y)
             }
-            y += Box.BOX_SPAN
+            y += boxSpan
         }
     }
 
@@ -264,12 +273,12 @@ class Board {
             color?.let {
                 Box.rect.draw(program, x, y, it)
             }
-            x += Box.BOX_SPAN
+            x += boxSpan
         }
     }
 
     private fun drawBoundary(program: SimpleProgram) {
-        boundary.draw(program, center[0], center[1],null, boudaryColor)
+        boundary.draw(program, center[0], center[1],null, boundaryColor)
     }
 
     private fun resetCurBoxCol() {

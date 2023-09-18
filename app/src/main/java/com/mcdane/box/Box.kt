@@ -1,6 +1,7 @@
 package com.mcdane.box
 
 import android.content.res.AssetManager
+import android.graphics.Rect
 import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -59,8 +60,10 @@ class Box {
         const val BOX_ROWS = 4
         const val BOX_COLS = 4
         const val BOX_BREATH = 50.0f
+        const val SMALL_BOX_BREATH = 5f
         const val BOX_SPACING = 1.0f
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
+        const val SMALL_BOX_SPAN = SMALL_BOX_BREATH + BOX_SPACING
         const val INDEX_COUNT = 4
         const val MAX_INDEX = INDEX_COUNT - 1
         const val MIN_LEVEL = 0
@@ -78,6 +81,7 @@ class Box {
             get() = typeCount - 1
 
         val rect = Rectangle(BOX_BREATH, BOX_BREATH, false)
+        val smallRect = Rectangle(SMALL_BOX_BREATH, SMALL_BOX_BREATH, false)
 
         fun init(assetMgr: AssetManager, configFile: String) {
             configs = Json.decodeFromStream<List<BoxConfigJsonItem>>(assetMgr.open(configFile))
@@ -91,6 +95,12 @@ class Box {
         fun bitmap(type: Int, index: Int): Int = configs[type].frames[index]
 
         fun color(type: Int): Color = configs[type].color
+
+        fun boxBreath(small: Boolean): Float = if (small) SMALL_BOX_BREATH else BOX_BREATH
+
+        fun boxSpan(small: Boolean): Float = if (small) SMALL_BOX_SPAN else BOX_SPAN
+
+        fun getRect(small: Boolean): Rectangle = if (small) smallRect else rect
 
         fun transformRow(rowStr: String): Int {
             if (rowStr.length != BOX_COLS) {
@@ -232,22 +242,25 @@ class Box {
         program: SimpleProgram,
         board: Board,
         rowIdx: Int,
-        colIdx: Int
+        colIdx: Int,
+        small: Boolean = false
     ) {
         val startX = board.boxPosX(colIdx)
         var y = board.boxPosY(rowIdx)
         var bmp = bitmap
+        val span = boxSpan(small)
+        val r = getRect(small)
 
         for (row in rowIdx until (rowIdx + BOX_ROWS)) {
             var x = startX
             for (col in colIdx  until (colIdx + BOX_COLS)) {
                 if (board.visible(row, col) && (bmp and 1 != 0)) {
-                    rect.draw(program, x, y, color)
+                    r.draw(program, x, y, color)
                 }
                 bmp = bmp ushr 1
-                x += BOX_SPAN
+                x += span
             }
-            y += BOX_SPAN
+            y += span
         }
     }
 

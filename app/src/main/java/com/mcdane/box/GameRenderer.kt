@@ -110,7 +110,6 @@ class GameRenderer(
 
             }
         }
-
     }
 
     private fun handlePointerDown(x: Float, y: Float) {
