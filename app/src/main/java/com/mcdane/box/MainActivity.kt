@@ -1,10 +1,12 @@
 package com.mcdane.box
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
@@ -107,11 +109,27 @@ class MainActivity : Activity() {
         val intent = Intent(this, BoxActivity::class.java)
         intent.putExtra("maxLevel", maxLevel)
         intent.putExtra("playerName", playerName)
+        intent.putExtra("isMultiplayer", false)
         startActivity(intent)
     }
 
     private fun onPvPGameClicked() {
-        Log.i(TAG, "PvP Game")
+        AlertDialog.Builder(this).apply{
+            val view = layoutInflater.inflate(R.layout.server_or_client, null)
+            setView(view)
+
+            val serverOrClient = view.findViewById<RadioGroup>(R.id.server_or_client)
+
+            setPositiveButton(R.string.ok) { dialog, _ ->
+                startPvPGame(
+                    serverOrClient.checkedRadioButtonId == R.id.run_as_server_button
+                )
+                dialog.dismiss()
+            }
+            setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+        }.show()
     }
 
     private fun onProfileClicked() {
@@ -126,6 +144,15 @@ class MainActivity : Activity() {
 
     private fun onHighScoresClicked() {
         val intent = Intent(this, HighScoresActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun startPvPGame(serverOrClient: Boolean) {
+        val intent = Intent(this, BoxActivity::class.java)
+        intent.putExtra("maxLevel", maxLevel)
+        intent.putExtra("playerName", playerName)
+        intent.putExtra("isMultiplayer", true)
+        intent.putExtra("serverOrClient", serverOrClient)
         startActivity(intent)
     }
 

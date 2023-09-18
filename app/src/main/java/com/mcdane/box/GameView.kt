@@ -6,8 +6,14 @@ import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.MotionEvent
 
-class GameView(activity: Activity,  val playerName: String, maxLevel: Int): GLSurfaceView(activity) {
-    private val renderer = GameRenderer(activity, playerName, maxLevel)
+class GameView(
+    activity: Activity,
+    playerName: String,
+    maxLevel: Int,
+    isMultiplayer: Boolean,
+    serverOrClient: Boolean
+): GLSurfaceView(activity) {
+    private val renderer = GameRenderer(activity, playerName, maxLevel, isMultiplayer, serverOrClient)
 
     init {
         setEGLContextClientVersion(3)

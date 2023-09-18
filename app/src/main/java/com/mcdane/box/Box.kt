@@ -60,7 +60,7 @@ class Box {
         const val BOX_ROWS = 4
         const val BOX_COLS = 4
         const val BOX_BREATH = 50.0f
-        const val SMALL_BOX_BREATH = 5f
+        const val SMALL_BOX_BREATH = 20f
         const val BOX_SPACING = 1.0f
         const val BOX_SPAN = BOX_BREATH + BOX_SPACING
         const val SMALL_BOX_SPAN = SMALL_BOX_BREATH + BOX_SPACING

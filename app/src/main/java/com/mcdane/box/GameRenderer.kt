@@ -17,7 +17,9 @@ import android.opengl.GLES30 as GL
 class GameRenderer(
     private val activity: Activity,
     val playerName: String,
-    val maxLevel: Int = 0
+    val maxLevel: Int = 0,
+    val isMultiplayer: Boolean,
+    val serverOrClient: Boolean,
 ): GLSurfaceView.Renderer {
     enum class GameState {
         RUNNING,
@@ -40,6 +42,7 @@ class GameRenderer(
     private val viewportSize = Vector(2)
     private val viewportOrigin = Vector(2)
     private lateinit var board: Board
+    private var smallBoard: Board? = null
     private val boardLeft = 20.0f
     private val buttonGrp = GameButtonGroup()
     private lateinit var preview: Preview
@@ -80,6 +83,7 @@ class GameRenderer(
     private fun draw() {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
+        smallBoard?.apply{ draw(program) }
         score.draw(program, textSys)
         preview.draw(program, state != GameState.STOPPED)
         buttonGrp.draw(program)
@@ -156,6 +160,9 @@ class GameRenderer(
         val rowCount = 32
         val colCount = 12
         board = Board(rowCount, colCount)
+        if (isMultiplayer) {
+            smallBoard = Board(rowCount, colCount, true)
+        }
     }
 
     private fun initCurBox() {
@@ -214,10 +221,16 @@ class GameRenderer(
             boardLeft,
             (viewportSize[1] - board.height) / 2.0f
         )
+        smallBoard?.let {
+            it.pos = Vector(
+                (viewportSize[0] + boardLeft + board.width - it.width) / 2.0f,
+                (viewportSize[1] - it.height) / 2.0f
+            )
+        }
     }
 
     private fun resetButtonPos() {
-        val downButtonY = 400f
+        val downButtonY = 200f
         val downButtonX = (viewportSize[0] + boardLeft + board.width) / 2.0f
         val buttonSpacing = BUTTON_BREATH + 10f
         val rotateButtonY = downButtonY + buttonSpacing
@@ -234,7 +247,7 @@ class GameRenderer(
     }
 
     private fun resetPreviewPos() {
-        val spacingFromTop = 400f
+        val spacingFromTop = 300f
         preview.resetPos(
             (viewportSize[0] + boardLeft + board.width) / 2.0f,
             viewportSize[1] - spacingFromTop
@@ -242,7 +255,7 @@ class GameRenderer(
     }
 
     private fun resetScorePos() {
-        val spacingFromTop = 200f
+        val spacingFromTop = 100f
         score.resetPos(
             (viewportSize[0] + boardLeft + board.width) / 2f,
             viewportSize[1] - spacingFromTop,

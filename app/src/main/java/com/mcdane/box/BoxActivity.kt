@@ -12,6 +12,8 @@ class BoxActivity : AppCompatActivity() {
             this,
             intent.getStringExtra("playerName") ?: "Unnamed Player",
             intent.getIntExtra("maxLevel", 0),
+            intent.getBooleanExtra("isMultiplayer", false),
+            intent.getBooleanExtra("serverOrClient", false),
         )
         setContentView(view)
     }
