@@ -2,16 +2,11 @@ package com.mcdane.box
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.opengl.GLSurfaceView
 import android.os.SystemClock
-import android.util.Log
-import android.view.MotionEvent
 import java.util.*
-import kotlin.math.min
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.random.Random
 import android.opengl.GLES30 as GL
 
 class GameRenderer(
@@ -35,6 +30,7 @@ class GameRenderer(
         private const val FLASHING_INTERVAL = 300
         private const val MAX_FLASH_COUNT = 3
         private const val MAX_DOWN_STEPS = 4
+        private val playerNameColor = Color(0, 0, 0, 255)
     }
 
     private lateinit var program: SimpleProgram
@@ -52,6 +48,8 @@ class GameRenderer(
     private var lastDownTime: Long = 0L
     private var lastFlashTime: Long = 0L
     private var flashCount = 0
+    private val playerNamePos = Vector(2)
+    private val remotePlayerNamePos = Vector(2)
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         initOpenGL()
@@ -83,6 +81,7 @@ class GameRenderer(
     private fun draw() {
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         board.draw(program)
+        textSys.draw(program, playerName, playerNamePos[0], playerNamePos[1], TextSize.MEDIUM, playerNameColor)
         smallBoard?.apply{ draw(program) }
         score.draw(program, textSys)
         preview.draw(program, state != GameState.STOPPED)
@@ -147,13 +146,14 @@ class GameRenderer(
         )
         initBoard()
         initPreview()
-        initCurBox()
         initScore()
         initButtons()
         initAlert()
-        state = GameState.RUNNING
-        lastDownTime = SystemClock.uptimeMillis()
-        lastFlashTime = lastDownTime
+        if (!isMultiplayer) {
+            state = GameState.RUNNING
+            lastDownTime = SystemClock.uptimeMillis()
+            lastFlashTime = lastDownTime
+        }
     }
 
     private fun initBoard() {
@@ -221,11 +221,16 @@ class GameRenderer(
             boardLeft,
             (viewportSize[1] - board.height) / 2.0f
         )
+        playerNamePos[0] = board.pos[0]
+        playerNamePos[1] = board.pos[1] + board.height + 10f
+
         smallBoard?.let {
             it.pos = Vector(
                 (viewportSize[0] + boardLeft + board.width - it.width) / 2.0f,
                 (viewportSize[1] - it.height) / 2.0f
             )
+            remotePlayerNamePos[0] = it.pos[0]
+            remotePlayerNamePos[1] = it.pos[1] + it.height + 10f
         }
     }
 

@@ -1,5 +1,6 @@
 package com.mcdane.box
 
+import kotlinx.coroutines.sync.Mutex
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -20,3 +21,10 @@ fun FloatArray.toFloatBuffer(): FloatBuffer =
             position(0)
         }
     }
+
+fun ByteBuffer.copy(other: ByteBuffer) {
+    clear()
+    other.let {
+        put(it.array(), it.arrayOffset(), it.position())
+    }
+}

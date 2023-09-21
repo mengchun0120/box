@@ -1,7 +1,6 @@
 package com.mcdane.box
 
 import android.app.Activity
-import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.MotionEvent
